@@ -34,6 +34,8 @@
     Simple and fancy launcher designed to download and launch any version of Beat Saber easily and quickly.
     <br />
     <br />
+    <a href="https://discord.gg/MrwMx5e">Join Our Discord!</a>
+    ·
     <a href="https://github.com/RiskiVR/BSLegacyLauncher/issues">Report Bug</a>
     ·
     <a href="https://github.com/RiskiVR/BSLegacyLauncher/issues">Request Feature</a>
@@ -96,6 +98,8 @@ See the [open issues](https://github.com/RiskiVR/BSLegacyLauncher/issues) for a 
 ## Contact
 
 RiskiVR - Discord: Risk#3904
+
+For Support [Join our Discord!](https://discord.gg/MrwMx5e)
 
 Project Link: [https://github.com/RiskiVR/BSLegacyLauncher](https://github.com/RiskiVR/BSLegacyLauncher)
 
