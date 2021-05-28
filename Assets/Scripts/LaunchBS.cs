@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
 public class LaunchBS : MonoBehaviour
@@ -29,7 +30,12 @@ public class LaunchBS : MonoBehaviour
         }
         catch (Exception E)
         {
-            ErrorText.text = "BEAT SABER NOT INSTALLED";
+            if (Directory.Exists("Beat Saber"))
+            {
+                if (!File.Exists("Beat Saber\\Beat Saber.exe"))
+                    ErrorText.text = "BAD INSTALL! PLEASE REINSTALL BEAT SABER";
+            }
+            else ErrorText.text = "BEAT SABER NOT INSTALLED";
             ErrorTextObject.SetActive(false);
             ErrorTextObject.SetActive(true);
             throw new Exception();

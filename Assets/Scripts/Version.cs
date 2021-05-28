@@ -6,5 +6,5 @@ public class Version
 {
     public string BSVersion;
     public string BSManifest;
-    public string BSModFolder;
+    public string ReleaseURL;
 }

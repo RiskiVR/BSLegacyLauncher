@@ -9,7 +9,7 @@ public class InstalledVer : MonoBehaviour
     public Text currentVersion;
     void Start()
     {
-        if (Directory.Exists("Beat Saber"))
+        if (File.Exists("Beat Saber\\Beat Saber.exe"))
             currentVersion.text = $"Currently Installed: {File.ReadAllText("BeatSaberVersion.txt")}";
     }
 }

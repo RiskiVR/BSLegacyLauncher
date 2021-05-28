@@ -13,10 +13,13 @@ public class UninstallCheck : MonoBehaviour
     {
         if (Directory.Exists("Beat Saber"))
         {
-            VersionsButton.interactable = false;
-            LaunchOptions.SetActive(true);
             if (File.Exists("BeatSaberVersion.txt"))
                 Button.SetActive(true);
+        }
+        if (File.Exists("Beat Saber\\Beat Saber.exe"))
+        {
+            VersionsButton.interactable = false;
+            LaunchOptions.SetActive(true);
         }
     }
 }
