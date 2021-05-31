@@ -24,6 +24,7 @@ public class DepotDownloaderObject : MonoBehaviour
     public Button StartButton;
     public Button BackButton;
     public Button ExitButton;
+    public Button UpdateButton;
     public GameObject InputFields;
     public GameObject StartButtonObject;
 
@@ -171,6 +172,7 @@ public class DepotDownloaderObject : MonoBehaviour
         LoginTextAnim.runtimeAnimatorController = TextDismiss;
         ProgressBar.SetActive(true);
         ExitButton.interactable = false;
+        UpdateButton.interactable = false;
 
         isDownloading = false;
         hasSetDownloading = true;
@@ -249,6 +251,7 @@ public class DepotDownloaderObject : MonoBehaviour
         DownloadingTextAnim.runtimeAnimatorController = TextDismiss;
         DownloadedTextAnim.runtimeAnimatorController = TextEnter;
         ExitButton.interactable = true;
+        UpdateButton.interactable = true;
         File.WriteAllText("BeatSaberVersion.txt", $"{$"{VersionVar.instance.version}"}");
         InstalledVersionObject.SetActive(true);
         InstalledVersionText.text = $"Currently Installed: {File.ReadAllText("BeatSaberVersion.txt")}";

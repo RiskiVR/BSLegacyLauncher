@@ -7,4 +7,9 @@ public class OpenURL : MonoBehaviour
     {
         Application.OpenURL("https://bslegacy.com");
     }
+
+    public void OpenGithub()
+    {
+        Application.OpenURL("https://github.com/RiskiVR/BSLegacyLauncher/releases/latest");
+    }
 }
