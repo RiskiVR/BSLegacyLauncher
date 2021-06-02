@@ -25,7 +25,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/RiskiVR/BSLegacyLauncher">
-    <img src="https://github.com/RiskiVR/BSLegacyLauncher/blob/media/readme/block.png" alt="Logo" width="80" height="80">
+    <img src="https://github.com/RiskiVR/BSLegacyLauncher/blob/media/readme/block.png" alt="Logo" width="100" height="100">
   </a>
 
   <h3 align="center">Beat Saber Legacy Launcher</h3>
@@ -109,7 +109,7 @@ Project Link: [https://github.com/RiskiVR/BSLegacyLauncher](https://github.com/R
 ## Acknowledgements
 
 * [RiskiVR](https://www.patreon.com/riskivr) - Project Lead/Lead Developer
-* [KortyBoi](https://kortyboi.com/) - Development Help
+* [MintLily](https://kortyboi.com/) - Development Help
 * [Nyamimi](https://github.com/nyamimi) - Development Help
 * [DDAkebono](https://potato.moe) - Development Help/DepotDownloader integration
 * [M.O.O.N](https://www.youtube.com/channel/UC6pqxF0s6FSu6oVm-70lzqQ) - Shader help
