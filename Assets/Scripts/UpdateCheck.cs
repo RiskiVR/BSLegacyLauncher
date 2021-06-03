@@ -5,7 +5,7 @@ using System.Text;
 public class UpdateCheck : MonoBehaviour
 {
     public GameObject UpdateCheckObject;
-    static string version = "1.2.0";
+    static string version = "1.2.1";
     string lazyTag = "\"tag_name\": \"v" + version + "\"";
     string incomingData = string.Empty;
     string GitHub = "https://api.github.com/repos/RiskiVR/BSLegacyLauncher/releases";

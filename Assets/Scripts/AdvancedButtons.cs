@@ -11,6 +11,7 @@ public class AdvancedButtons : MonoBehaviour
 {
     public Text ErrorText;
     public GameObject ErrorTextObject;
+    public GameObject CuteErrorObject;
     public void BrowseAppdata()
     {
         Process.Start(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\LocalLow\\Hyperbolic Magnetism");
@@ -30,6 +31,7 @@ public class AdvancedButtons : MonoBehaviour
 
         if (Directory.Exists(targetDirectoryPath))
         {
+            CuteErrorObject.SetActive(false);
             ErrorText.text = "BACKUP ALREADY EXISTS";
             ErrorTextObject.SetActive(false);
             ErrorTextObject.SetActive(true);
@@ -77,6 +79,23 @@ public class AdvancedButtons : MonoBehaviour
         }
         else
         {
+            CuteErrorObject.SetActive(false);
+            ErrorText.text = "NO BACKUP FOUND";
+            ErrorTextObject.SetActive(false);
+            ErrorTextObject.SetActive(true);
+            throw new Exception();
+        }
+
+    }
+    public void ClearAppdataBackup()
+    {
+        if (Directory.Exists((Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\LocalLow\\Hyperbolic Magnetism\\Beat Saber Backup")))
+        {
+            Directory.Delete((Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\LocalLow\\Hyperbolic Magnetism\\Beat Saber Backup"), true);
+        }
+        else
+        {
+            CuteErrorObject.SetActive(false);
             ErrorText.text = "NO BACKUP FOUND";
             ErrorTextObject.SetActive(false);
             ErrorTextObject.SetActive(true);
