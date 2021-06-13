@@ -102,4 +102,14 @@ public class AdvancedButtons : MonoBehaviour
             throw new Exception();
         }
     }
+
+    public void OpenPatreonURL()
+    {
+        Application.OpenURL("https://patreon.com/RiskiVR");
+    }
+
+    public void OpenKofiURL()
+    {
+        Application.OpenURL("https://ko-fi.com/U7U114VMM");
+    }
 }

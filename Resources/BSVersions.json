@@ -212,6 +212,11 @@
    {
       "BSVersion":"1.16.1",
       "BSManifest":"9201874499606445062",
-      "ReleaseURL":"http://steamcommunity.com/games/620980/announcements/detail/3001065803748822093"
+      "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/3001065803748822093"
+   },
+   {
+      "BSVersion":"1.16.2",
+      "BSManifest":"3692829915208062825",
+      "ReleaseURL":"http://steamcommunity.com/games/620980/announcements/detail/3024710972645830369"
    }
 ]
