@@ -39,7 +39,7 @@ public class LaunchBS : MonoBehaviour
             else ErrorText.text = "BEAT SABER NOT INSTALLED";
             ErrorTextObject.SetActive(false);
             ErrorTextObject.SetActive(true);
-            throw new Exception();
+            throw new Exception("Beat Saber Not Installed");
         }
     }
 }

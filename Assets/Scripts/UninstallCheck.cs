@@ -10,6 +10,7 @@ public class UninstallCheck : MonoBehaviour
     public GameObject Button;
     public Button VersionsButton;
     public Button GameFilesButton;
+    public Button InstallIPAButton;
     public void Start()
     {
         if (Directory.Exists("Beat Saber"))
@@ -21,6 +22,7 @@ public class UninstallCheck : MonoBehaviour
         {
             VersionsButton.interactable = false;
             GameFilesButton.interactable = true;
+            InstallIPAButton.interactable = true;
             LaunchOptions.SetActive(true);
         }
     }

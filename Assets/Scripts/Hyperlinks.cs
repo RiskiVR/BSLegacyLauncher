@@ -13,7 +13,7 @@ public class Hyperlinks : MonoBehaviour
     }
     public void Link_Nyamimi()
     {
-        Application.OpenURL("https://github.com/nyamimi");
+        Application.OpenURL("https://github.com/daCyuubi");
     }
     public void Link_DDAkebono()
     {

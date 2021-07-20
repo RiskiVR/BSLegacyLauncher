@@ -10,6 +10,16 @@ public class InstalledVer : MonoBehaviour
     void Start()
     {
         if (File.Exists("Beat Saber\\Beat Saber.exe"))
-            currentVersion.text = $"Currently Installed: {File.ReadAllText("BeatSaberVersion.txt")}";
+        {
+        if (File.Exists("Beat Saber\\BeatSaberVersion.txt"))
+            {
+                currentVersion.text = $"Currently Installed: {File.ReadAllText("Beat Saber\\BeatSaberVersion.txt")}";
+                File.WriteAllText("BeatSaberVersion.txt", $"{File.ReadAllText("Beat Saber\\BeatSaberVersion.txt")}");
+            }
+            else
+            {
+                currentVersion.text = $"Currently Installed: {File.ReadAllText("BeatSaberVersion.txt")}";
+            }
+        }
     }
 }

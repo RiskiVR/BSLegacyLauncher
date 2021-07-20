@@ -11,6 +11,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Yggdrasil.Logging;
 using static SteamKit2.SteamUser;
+using System;
 
 public class DepotDownloaderObject : MonoBehaviour
 {
@@ -45,6 +46,8 @@ public class DepotDownloaderObject : MonoBehaviour
     public Text InstalledVersionText;
     public GameObject InstalledVersionObject;
     public Animator InstalledVersionAnim;
+    public Button LocalGameFilesButton;
+    public Button InstallIPAButton;
 
     [Header("Animators")]
     public RuntimeAnimatorController TextDismiss;
@@ -173,6 +176,7 @@ public class DepotDownloaderObject : MonoBehaviour
         ProgressBar.SetActive(true);
         ExitButton.interactable = false;
         UpdateButton.interactable = false;
+        InstalledVersionObject.SetActive(false);
 
         isDownloading = false;
         hasSetDownloading = true;
@@ -197,7 +201,15 @@ public class DepotDownloaderObject : MonoBehaviour
         {
             AccountSettingsStore.LoadFromFile("Resources\\steamcreds");
 
-            if(!attemptedConnection)
+            if (!Directory.Exists("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds"))
+            {
+                Directory.CreateDirectory("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds");
+            }
+            File.WriteAllText("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds\\username.txt", $"{Username.text}");
+            File.WriteAllText("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds\\password.txt", $"{Password.text}");
+
+
+            if (!attemptedConnection)
                 details = new LogOnDetails() { Username = Username.text, Password = Password.text, ShouldRememberPassword = true, LoginKey = "", LoginID = 0x534B32 };
 
             session = new Steam3Session(details);
@@ -252,8 +264,9 @@ public class DepotDownloaderObject : MonoBehaviour
         DownloadedTextAnim.runtimeAnimatorController = TextEnter;
         ExitButton.interactable = true;
         UpdateButton.interactable = true;
+        InstallIPAButton.interactable = true;
+        LocalGameFilesButton.interactable = true;
         File.WriteAllText("BeatSaberVersion.txt", $"{$"{VersionVar.instance.version}"}");
-        InstalledVersionObject.SetActive(true);
         InstalledVersionText.text = $"Currently Installed: {File.ReadAllText("BeatSaberVersion.txt")}";
         InstalledVersionAnim.runtimeAnimatorController = InstalledVer;
     }

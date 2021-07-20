@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Diagnostics;
 using System.IO;
 using UnityEditor;
@@ -19,15 +20,8 @@ public class AdvancedButtons : MonoBehaviour
 
     public void BackupAppdata()
     {
-        string fileName = "";
-        
         var sourceDirectoryPath = Path.Combine(Environment.CurrentDirectory, (Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\LocalLow\\Hyperbolic Magnetism\\Beat Saber"));
-        var sourceDirectoryInfo = new DirectoryInfo(sourceDirectoryPath);
-
         var targetDirectoryPath = Path.Combine(Environment.CurrentDirectory, (Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\LocalLow\\Hyperbolic Magnetism\\Beat Saber Backup"));
-        var targetDirectoryInfo = new DirectoryInfo(targetDirectoryPath);
-
-        string destFile = Path.Combine(targetDirectoryPath, fileName);
 
         if (Directory.Exists(targetDirectoryPath))
         {
@@ -35,7 +29,7 @@ public class AdvancedButtons : MonoBehaviour
             ErrorText.text = "BACKUP ALREADY EXISTS";
             ErrorTextObject.SetActive(false);
             ErrorTextObject.SetActive(true);
-            throw new Exception();
+            throw new Exception("Backup already exists");
         }
 
         else
@@ -47,20 +41,7 @@ public class AdvancedButtons : MonoBehaviour
 
             if (Directory.Exists(sourceDirectoryPath))
             {
-                string[] files = Directory.GetFiles(sourceDirectoryPath);
-
-                // Copy the files and overwrite destination files if they already exist.
-                foreach (string s in files)
-                {
-                    // Use static Path methods to extract only the file name from the path.
-                    fileName = Path.GetFileName(s);
-                    destFile = Path.Combine(targetDirectoryPath, fileName);
-                    File.Copy(s, destFile, true);
-                }
-            }
-            else
-            {
-                Console.WriteLine("Source path does not exist!");
+                DirectoryCopy(sourceDirectoryPath, targetDirectoryPath, true);
             }
         }
     }
@@ -83,7 +64,7 @@ public class AdvancedButtons : MonoBehaviour
             ErrorText.text = "NO BACKUP FOUND";
             ErrorTextObject.SetActive(false);
             ErrorTextObject.SetActive(true);
-            throw new Exception();
+            throw new Exception("No Backup Found");
         }
 
     }
@@ -99,9 +80,73 @@ public class AdvancedButtons : MonoBehaviour
             ErrorText.text = "NO BACKUP FOUND";
             ErrorTextObject.SetActive(false);
             ErrorTextObject.SetActive(true);
-            throw new Exception();
+            throw new Exception("No Backup Found");
         }
     }
+
+    public void InstallIPA()
+    {
+        try
+        {
+            DirectoryCopy("Resources\\BSIPA", "Beat Saber", true);
+
+            
+        }
+        catch
+        {
+            CuteErrorObject.SetActive(false);
+            ErrorText.text = "IPA ALREADY INSTALLED";
+            ErrorTextObject.SetActive(false);
+            ErrorTextObject.SetActive(true);
+            throw new Exception("IPA is already installed");
+        }
+
+        {
+            string bspath = Environment.CurrentDirectory + "/Beat Saber";
+            Process.Start(new ProcessStartInfo
+            {
+                WorkingDirectory = bspath,
+                FileName = bspath + "/IPA.exe"
+            });
+        }
+    }
+    void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
+    {
+        // Get the subdirectories for the specified directory.
+        DirectoryInfo dir = new DirectoryInfo(sourceDirName);
+
+        if (!dir.Exists)
+        {
+            throw new DirectoryNotFoundException(
+                "Source directory does not exist or could not be found: "
+                + sourceDirName);
+        }
+        
+        DirectoryInfo[] dirs = dir.GetDirectories();
+
+        // If the destination directory doesn't exist, create it.       
+        Directory.CreateDirectory(destDirName);
+
+        // Get the files in the directory and copy them to the new location.
+        FileInfo[] files = dir.GetFiles();
+        foreach (FileInfo file in files)
+        {
+            string tempPath = Path.Combine(destDirName, file.Name);
+            file.CopyTo(tempPath, false);
+        }
+
+        // If copying subdirectories, copy them and their contents to new location.
+        if (copySubDirs)
+        {
+            foreach (DirectoryInfo subdir in dirs)
+            {
+                string tempPath = Path.Combine(destDirName, subdir.Name);
+                DirectoryCopy(subdir.FullName, tempPath, copySubDirs);
+            }
+        }
+    }
+
+
 
     public void OpenPatreonURL()
     {
