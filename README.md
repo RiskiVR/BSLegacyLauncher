@@ -110,6 +110,6 @@ Project Link: [https://github.com/RiskiVR/BSLegacyLauncher](https://github.com/R
 
 * [RiskiVR](https://www.patreon.com/riskivr) - Project Lead/Lead Developer
 * [MintLily](https://kortyboi.com/) - Development Help
-* [Cyuubi](https://github.com/dacyuubi) - Development Help
+* [Aika](https://twitter.com/NotAika_) - Development Help
 * [DDAkebono](https://potato.moe) - Development Help/DepotDownloader integration
 * [M.O.O.N](https://www.youtube.com/channel/UC6pqxF0s6FSu6oVm-70lzqQ) - Shader help
