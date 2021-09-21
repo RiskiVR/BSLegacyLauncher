@@ -12,6 +12,7 @@ using UnityEngine.UI;
 using Yggdrasil.Logging;
 using static SteamKit2.SteamUser;
 using System;
+using SteamKit2.GC.CSGO.Internal;
 
 public class DepotDownloaderObject : MonoBehaviour
 {
@@ -48,6 +49,7 @@ public class DepotDownloaderObject : MonoBehaviour
     public Animator InstalledVersionAnim;
     public Button LocalGameFilesButton;
     public Button InstallIPAButton;
+    public GameObject InvalidPasswordTips;
 
     [Header("Animators")]
     public RuntimeAnimatorController TextDismiss;
@@ -134,6 +136,7 @@ public class DepotDownloaderObject : MonoBehaviour
                 case SteamLoginResponse.INVALID_PASSWORD:
                     request = SteamLoginResponse.NONE;
                     DisplayErrorText("INVALID PASSWORD");
+                    InvalidPasswordTips.SetActive(true);
                     break;
                 case SteamLoginResponse.PASSWORDUNSET:
                     request = SteamLoginResponse.NONE;
@@ -199,18 +202,31 @@ public class DepotDownloaderObject : MonoBehaviour
 
         if (!string.IsNullOrEmpty(Username.text) && !string.IsNullOrEmpty(Password.text))
         {
-            AccountSettingsStore.LoadFromFile("Resources\\steamcreds");
+            if(!AccountSettingsStore.Loaded)
+                AccountSettingsStore.LoadFromFile("steamcreds");
 
             if (!Directory.Exists("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds"))
             {
                 Directory.CreateDirectory("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds");
             }
             File.WriteAllText("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds\\username.txt", $"{Username.text}");
-            File.WriteAllText("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds\\password.txt", $"{Password.text}");
 
 
             if (!attemptedConnection)
-                details = new LogOnDetails() { Username = Username.text, Password = Password.text, ShouldRememberPassword = true, LoginKey = "", LoginID = 0x534B32 };
+            {
+                string loginKey = null;
+
+                AccountSettingsStore.Instance.LoginKeys.TryGetValue(Username.text, out loginKey);
+                
+                details = new LogOnDetails()
+                {
+                    Username = Username.text,
+                    Password = loginKey == null ? Password.text : null,
+                    ShouldRememberPassword = true,
+                    LoginKey = loginKey,
+                    LoginID = 0x534B32
+                };
+            }
 
             session = new Steam3Session(details);
 
@@ -398,7 +414,7 @@ public class DepotDownloaderObject : MonoBehaviour
         Log.Info("Successfully connected to Steam3 service!");
     }
 
-    public void StartDownload()
+    public async void StartDownload()
     {
         if (isLoggedIn)
         {
@@ -406,7 +422,8 @@ public class DepotDownloaderObject : MonoBehaviour
             Version selectedVersion = versions.First(x => x.BSVersion.Equals(VersionVar.instance.version));
             Log.Info($"You selected version {selectedVersion.BSVersion}:{selectedVersion.BSManifest}");
             ContentDownloader.Config.InstallDirectory = "Beat Saber";
-            ContentDownloader.DownloadAppAsync(620980, 620981, ulong.Parse(selectedVersion.BSManifest), "public");
+            ContentDownloader.Config.MaxDownloads = 1;
+            await ContentDownloader.DownloadAppAsync(620980, new List<(uint depotId, ulong manifestId)>() { (620981, ulong.Parse(selectedVersion.BSManifest))}, "public", "windows", "64", "english", false, false).ConfigureAwait(false);
         }
     }
 }

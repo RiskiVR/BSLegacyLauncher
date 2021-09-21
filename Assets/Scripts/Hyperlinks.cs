@@ -9,11 +9,11 @@ public class Hyperlinks : MonoBehaviour
     }
     public void Link_Korty()
     {
-        Application.OpenURL("https://kortyboi.com/");
+        Application.OpenURL("https://mintlily.lgbt/");
     }
     public void Link_Nyamimi()
     {
-        Application.OpenURL("https://github.com/daCyuubi");
+        Application.OpenURL("https://twitter.com/NotAika_");
     }
     public void Link_DDAkebono()
     {

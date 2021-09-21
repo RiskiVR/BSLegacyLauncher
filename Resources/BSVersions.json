@@ -218,5 +218,30 @@
       "BSVersion":"1.16.2",
       "BSManifest":"3692829915208062825",
       "ReleaseURL":"http://steamcommunity.com/games/620980/announcements/detail/3024710972645830369"
+   },
+   {
+      "BSVersion":"1.16.3",
+      "BSManifest":"6392596175313869009",
+      "ReleaseURL":"http://steamcommunity.com/games/620980/announcements/detail/5293402556388135977"
+   },
+   {
+      "BSVersion":"1.16.4",
+      "BSManifest":"8820433629543698585",
+      "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/2965042081090310028"
+   },
+   {
+      "BSVersion":"1.17.0",
+      "BSManifest":"7826684224434229804",
+      "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/2945905042782366475"
+   },
+   {
+      "BSVersion":"1.17.1",
+      "BSManifest":"4668547658954826996",
+      "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/2947032120578243378"
+   },
+   {
+      "BSVersion":"1.18.0",
+      "BSManifest":"5599254819160454367",
+      "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/5570379635768010184"
    }
 ]

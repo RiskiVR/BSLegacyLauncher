@@ -11,15 +11,14 @@ public class SteamCreds : MonoBehaviour
     public Toggle Toggle;
     void Start()
     {
+        if (File.Exists("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds\\password.txt"))
+            File.Delete("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds\\password.txt");
+
         if (Directory.Exists("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds"))
         {
             string SavedUser;
             SavedUser = File.ReadAllText("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds\\username.txt");
             User.text = $"{SavedUser}";
-
-            string SavedPass;
-            SavedPass = File.ReadAllText("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds\\password.txt");
-            Pass.text = $"{SavedPass}";
 
             Toggle.isOn = true;
         }
