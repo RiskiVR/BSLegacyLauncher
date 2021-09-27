@@ -91,7 +91,7 @@ BSLegacyLauncher is a program designed to fetch any version of Beat Saber from S
 ## Having problems?
 
 See the [open issues](https://github.com/RiskiVR/BSLegacyLauncher/issues) for a list of known issues, from there you can create a new issue for the problem you have!
-</br>Othewise you can add on to existing issues if one matches what you're encountering.
+</br>Otherwise you can add on to existing issues if one matches what you're encountering.
 
 
 <!-- CONTACT -->
