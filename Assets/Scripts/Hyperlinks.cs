@@ -11,10 +11,6 @@ public class Hyperlinks : MonoBehaviour
     {
         Application.OpenURL("https://mintlily.lgbt/");
     }
-    public void Link_Nyamimi()
-    {
-        Application.OpenURL("https://twitter.com/NotAika_");
-    }
     public void Link_DDAkebono()
     {
         Application.OpenURL("https://potato.moe");
