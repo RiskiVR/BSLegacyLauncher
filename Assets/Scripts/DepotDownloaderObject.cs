@@ -221,7 +221,7 @@ public class DepotDownloaderObject : MonoBehaviour
                 details = new LogOnDetails()
                 {
                     Username = Username.text,
-                    Password = loginKey == null ? Password.text : null,
+                    Password = Password.text,
                     ShouldRememberPassword = true,
                     LoginKey = loginKey,
                     LoginID = 0x534B32

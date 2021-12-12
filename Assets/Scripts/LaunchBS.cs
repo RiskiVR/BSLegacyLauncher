@@ -16,7 +16,7 @@ public class LaunchBS : MonoBehaviour
     {
         var process = new Process()
         {
-            StartInfo = new ProcessStartInfo($"{System.Environment.CurrentDirectory}\\Beat Saber\\Beat Saber.exe", (OculusToggle.isOn ? "-vrmode oculus " : "") + (verboseToggle.isOn ? "--verbose" : "") + (fpfcToggle.isOn ? "fpfc" : ""))
+            StartInfo = new ProcessStartInfo($"{System.Environment.CurrentDirectory}\\Beat Saber\\Beat Saber.exe", (OculusToggle.isOn ? "-vrmode oculus " : "") + (verboseToggle.isOn ? "--verbose " : "") + (fpfcToggle.isOn ? "fpfc " : ""))
             {
                 UseShellExecute = false,
                 WorkingDirectory = $"{System.Environment.CurrentDirectory}\\Beat Saber"
