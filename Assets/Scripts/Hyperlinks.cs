@@ -15,5 +15,4 @@ public class Hyperlinks : MonoBehaviour
     {
         Application.OpenURL("https://potato.moe");
     }
-
 }
