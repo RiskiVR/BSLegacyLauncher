@@ -25,7 +25,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/RiskiVR/BSLegacyLauncher">
-    <img src="https://github.com/RiskiVR/BSLegacyLauncher/blob/media/readme/block.png" alt="Logo" width="100" height="100">
+    <img src="https://github.com/RiskiVR/BSLegacyLauncher/blob/media/readme/block.png" alt="Logo" width="250" height="250">
   </a>
 
   <h3 align="center">Beat Saber Legacy Launcher</h3>
