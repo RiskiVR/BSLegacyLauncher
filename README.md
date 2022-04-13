@@ -46,7 +46,6 @@
 </p>
 
 
-
 <!-- TABLE OF CONTENTS -->
 <details open="open">
   <summary><h2 style="display: inline-block">Table of Contents</h2></summary>
@@ -67,7 +66,6 @@
 </details>
 
 
-
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
@@ -79,7 +77,7 @@ BSLegacyLauncher is a program designed to fetch any version of Beat Saber from S
 ### Built With
 
 * [Unity](https://unity.com/)
-* [DepotDownloader.Library](https://github.com/ddakebono/DepotDownloader)
+* [DepotDownloader](https://github.com/SteamRE/DepotDownloader)
 
 <!-- GETTING STARTED -->
 ## How To Use
@@ -87,7 +85,6 @@ BSLegacyLauncher is a program designed to fetch any version of Beat Saber from S
  - Simply download the latest release from [Releases](https://github.com/RiskiVR/BSLegacyLauncher/releases/latest).
  - Once that's done, extract it and run "Beat Saber Legacy Launcher.exe" in the folder.
  - From there follow the buttons and prompts to select the target version, and log into your steam account!
-
 
 
 <!-- ROADMAP -->
@@ -100,12 +97,9 @@ See the [open issues](https://github.com/RiskiVR/BSLegacyLauncher/issues) for a 
 <!-- CONTACT -->
 ## Contact
 
-RiskiVR - Discord: Risk#3904
-
 For Support [Join our Discord!](https://discord.gg/MrwMx5e)
 
 Project Link: [https://github.com/RiskiVR/BSLegacyLauncher](https://github.com/RiskiVR/BSLegacyLauncher)
-
 
 
 <!-- ACKNOWLEDGEMENTS -->
@@ -113,5 +107,6 @@ Project Link: [https://github.com/RiskiVR/BSLegacyLauncher](https://github.com/R
 
 * [RiskiVR](https://www.patreon.com/riskivr) - Project Lead/Lead Developer
 * [MintLily](https://mintlily.lgbt/) - Development Help
-* [DDAkebono](https://potato.moe) - Development Help/DepotDownloader integration
-* [M.O.O.N](https://www.youtube.com/channel/UC6pqxF0s6FSu6oVm-70lzqQ) - Shader help
+* [DDAkebono](https://potato.moe) - Development Help
+* [ComputerElite](https://computerelite.github.io/) - Development Help
+* [M.O.O.N](https://www.youtube.com/channel/UC6pqxF0s6FSu6oVm-70lzqQ) - Shader Help
