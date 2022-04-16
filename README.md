@@ -86,6 +86,7 @@ Ever wanted or needed to have the ability to switch between two versions? Then t
  - Simply download the latest release from [Releases](https://github.com/RiskiVR/BSLegacyLauncher/releases/latest).
  - Once that's done, extract it and run "Beat Saber Legacy Launcher.exe" in the folder.
  - From there follow the buttons and prompts to select the target version, and log into your steam account!
+ - *To launch your Launcher install via Steam, add a Steam shortcut to `Beat Saber Legacy Launcher.exe` then add `--LaunchBS` to Launch Options*
 
 
 <!-- ROADMAP -->
