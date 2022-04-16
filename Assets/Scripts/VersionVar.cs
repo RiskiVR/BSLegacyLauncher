@@ -14,6 +14,8 @@ public class VersionVar : MonoBehaviour
 
     public TextMesh VersionText;
 
+    public DiscordController DiscordController;
+
     [HideInInspector]
     public string version;
 
@@ -23,16 +25,12 @@ public class VersionVar : MonoBehaviour
         VersionText.text = Version;
         VersionText.gameObject.SetActive(false);
         VersionText.gameObject.SetActive(true);
+        DiscordController.BSVersion = $"{Version}";
+        DiscordController.SelectVersion();
     }
 
     void Start()
     {
         instance = this;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

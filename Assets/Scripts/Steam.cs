@@ -18,7 +18,6 @@ public class Steam : MonoBehaviour
     {
         string versionList = File.ReadAllText("Resources/BSVersions.json");
         versions = JsonConvert.DeserializeObject<List<Version>>(versionList);
-
     }
     public void SteamDownload()
     {

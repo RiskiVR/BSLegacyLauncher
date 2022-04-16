@@ -7,7 +7,7 @@ using UnityEngine.UI;
 public class UninstallCheck : MonoBehaviour
 {
     public GameObject LaunchOptions;
-    public GameObject Button;
+    public GameObject UninstallButton;
     public Button VersionsButton;
     public Button GameFilesButton;
     public Button InstallIPAButton;
@@ -16,14 +16,16 @@ public class UninstallCheck : MonoBehaviour
         if (Directory.Exists("Beat Saber"))
         {
             if (File.Exists("BeatSaberVersion.txt"))
-                Button.SetActive(true);
+            {
+                LaunchOptions.SetActive(true);
+                InstallIPAButton.interactable = true;
+            }
         }
         if (File.Exists("Beat Saber\\Beat Saber.exe"))
         {
             VersionsButton.interactable = false;
             GameFilesButton.interactable = true;
-            InstallIPAButton.interactable = true;
-            LaunchOptions.SetActive(true);
+            UninstallButton.SetActive(true);
         }
     }
 }

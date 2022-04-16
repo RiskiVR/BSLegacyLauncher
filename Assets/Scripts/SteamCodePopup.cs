@@ -13,16 +13,22 @@ namespace Assets.Scripts
         public TextMesh Description;
         public InputField codeField;
         public Button EnterButton;
-        [HideInInspector]
-        public SteamLoginResponse request;
 
         [HideInInspector]
-        public Action<string, SteamLoginResponse> callback;
+        public Action<string> callback;
+
+        public void Start()
+        {
+            codeField.onEndEdit.AddListener(value =>
+            {
+                if (Input.GetKey(KeyCode.Return)) EnterPressed();
+            });
+        }
 
         public void EnterPressed()
         {
-            callback.Invoke(codeField.text, request);
-            GameObject.Destroy(gameObject);
+            callback.Invoke(codeField.text);
+            Destroy(gameObject);
         }
     }
 }

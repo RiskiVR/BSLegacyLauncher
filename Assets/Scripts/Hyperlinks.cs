@@ -15,4 +15,8 @@ public class Hyperlinks : MonoBehaviour
     {
         Application.OpenURL("https://potato.moe");
     }
+    public void Link_ComputerElite()
+    {
+        Application.OpenURL("https://computerelite.github.io/");
+    }
 }

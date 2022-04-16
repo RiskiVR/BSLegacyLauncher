@@ -5,7 +5,7 @@ using System.Text;
 public class UpdateCheck : MonoBehaviour
 {
     public GameObject UpdateCheckObject;
-    static string version = "1.3.4";
+    static string version = "1.4.0";
     string lazyTag = "\"tag_name\": \"v" + version + "\"";
     string incomingData = string.Empty;
     string GitHub = "https://api.github.com/repos/RiskiVR/BSLegacyLauncher/releases";
@@ -16,6 +16,7 @@ public class UpdateCheck : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        GetComponent<TextMesh>().text = "v" + version;
         WebClient web = new WebClient();
         web.Headers["Content-Type"] = "application/json";
         web.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:87.0) Gecko/20100101 Firefox/87.0");

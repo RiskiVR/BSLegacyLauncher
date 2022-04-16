@@ -55,9 +55,15 @@ public class AdvancedButtons : MonoBehaviour
     {
         if (Directory.Exists((Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\LocalLow\\Hyperbolic Magnetism\\Beat Saber Backup")))
         {
-            Directory.Delete((Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\LocalLow\\Hyperbolic Magnetism\\Beat Saber"), true);
+            if (Directory.Exists((Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\LocalLow\\Hyperbolic Magnetism\\Beat Saber")))
+            {
+                Directory.Delete((Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\LocalLow\\Hyperbolic Magnetism\\Beat Saber"), true);
+            }
+
             Directory.Move((Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\LocalLow\\Hyperbolic Magnetism\\Beat Saber Backup"), (Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\LocalLow\\Hyperbolic Magnetism\\Beat Saber"));
         }
+    
+
         else
         {
             CuteErrorObject.SetActive(false);
@@ -68,19 +74,19 @@ public class AdvancedButtons : MonoBehaviour
         }
 
     }
-    public void ClearAppdataBackup()
+    public void ClearAppdata()
     {
         if (Directory.Exists((Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\LocalLow\\Hyperbolic Magnetism\\Beat Saber Backup")))
         {
-            Directory.Delete((Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\LocalLow\\Hyperbolic Magnetism\\Beat Saber Backup"), true);
+            Directory.Delete((Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\LocalLow\\Hyperbolic Magnetism\\Beat Saber"), true);
         }
         else
         {
             CuteErrorObject.SetActive(false);
-            ErrorText.text = "NO BACKUP FOUND";
+            ErrorText.text = "CREATE A BACKUP FIRST";
             ErrorTextObject.SetActive(false);
             ErrorTextObject.SetActive(true);
-            throw new Exception("No Backup Found");
+            throw new Exception("No Backup Found, Cannot clear AppData");
         }
     }
 

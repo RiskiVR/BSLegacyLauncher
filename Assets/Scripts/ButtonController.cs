@@ -4,29 +4,22 @@ using UnityEngine;
 
 public class ButtonController : MonoBehaviour
 {
-    public Animator Movement;
-    public void set1()
+    public float target = 0;
+    public float speed = 1;
+    public void set(int movement, int yearCount)
     {
-        Movement.SetInteger("Button_Movement", 1);
+        float buttonWidth = 1.425f;
+        target =  buttonWidth * movement - (yearCount * buttonWidth / 2) + 0.7125f;
     }
 
-    public void set2()
+    void Update()
     {
-        Movement.SetInteger("Button_Movement", 2);
-    }
-
-    public void set3()
-    {
-        Movement.SetInteger("Button_Movement", 3);
-    }
-
-    public void set4()
-    {
-        Movement.SetInteger("Button_Movement", 4);
-    }
-
-    public void set5()
-    {
-        Movement.SetInteger("Button_Movement", 5);
+        if(Mathf.Abs(target - transform.position.x) > speed * Time.deltaTime)
+        {
+            transform.position = new Vector3(transform.position.x + speed * Time.deltaTime * Mathf.Sign(target - transform.position.x), transform.position.y);
+        } else
+        {
+            transform.position = new Vector3(target, transform.position.y);
+        }
     }
 }

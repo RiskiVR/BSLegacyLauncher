@@ -1,8 +1,6 @@
 ﻿using Assets.Scripts;
 using DepotDownloader;
 using Newtonsoft.Json;
-using SteamKit2;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,13 +10,16 @@ using UnityEngine.UI;
 using Yggdrasil.Logging;
 using static SteamKit2.SteamUser;
 using System;
-using SteamKit2.GC.CSGO.Internal;
+using System.Diagnostics;
 
 public class DepotDownloaderObject : MonoBehaviour
 {
     public static DepotDownloaderObject instance;
 
     public static List<Version> versions = new List<Version>();
+
+    [Header("Other scripts")]
+    public DiscordController DiscordController;
 
     [Header("Scene Objects")]
     public InputField Username;
@@ -29,6 +30,7 @@ public class DepotDownloaderObject : MonoBehaviour
     public Button UpdateButton;
     public GameObject InputFields;
     public GameObject StartButtonObject;
+    public TextMesh DebugText;
 
     [Header("Random Elements We Need")]
     public GameObject VersionText1;
@@ -64,22 +66,21 @@ public class DepotDownloaderObject : MonoBehaviour
     [HideInInspector]
     public GameObject LoadingActiveInstance;
 
-    private Thread steamThread;
-
-    private bool isLoggedIn = false;
-    private bool attemptedConnection = false;
-    private bool loginInProgress = false;
-    private bool isDialogDisplayed = false;
     private bool updateDownloading = false;
     private bool isDownloading = false;
-    private bool hasSetDownloading = false;
-    private bool hasFinishedDownloading = false;
-    private Steam3Session session;
-    private LogOnDetails details;
+    public LogOnDetails details;
     private SteamLoginResponse request = SteamLoginResponse.NONE;
-    private string steamCode;
     private string localCurrentDownloadStep;
     private float downloadPercentage;
+    private float downloadSmoothened;
+    private bool requestSteamGuardPopUp = false;
+    private bool requestLoginPrompt = false;
+
+    bool downloadFinished = false;
+    Process dd = null;
+    public int ddStartedTimes = 0;
+
+
 
     // Start is called before the first frame update
     void Start()
@@ -91,85 +92,102 @@ public class DepotDownloaderObject : MonoBehaviour
         string versionList = File.ReadAllText("Resources/BSVersions.json");
         versions = JsonConvert.DeserializeObject<List<Version>>(versionList);
 
-        ContentDownloader.ProgressUpdateHandlers += OnProgressUpdate;
-        ContentDownloader.DownloadCompleted += OnDownloadCompleted;
+        Username.onEndEdit.AddListener(value =>
+        {
+            if (Input.GetKey(KeyCode.Return)) Password.Select();
+        });
+
+        Password.onEndEdit.AddListener(value =>
+        {
+            if(Input.GetKey(KeyCode.Return)) LoginPressed();
+        });
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(!loginInProgress && !StartButton.interactable && !isDialogDisplayed && !hasSetDownloading)
+        if (Input.GetKeyDown(KeyCode.Tab))
         {
-            SetLoginObjects(true);
+            if(Password.isFocused) Username.Select();
+            else Password.Select();
+            
         }
 
-        if (isDownloading)
+        if (isDownloading) SetDownloadingLayout();
+
+        if (requestLoginPrompt)
         {
-            SetDownloadingLayout();
+            Log.Info("Login prompt requested");
+            SetLoginObjects(true);
+            requestLoginPrompt = false;
         }
+
+        if (requestSteamGuardPopUp)
+        {
+            Log.Info("SteamGuard prompt requested");
+            requestSteamGuardPopUp = false;
+            createSteamCodePopup("Check the code from your 2FA or Steam Guard");
+        }
+
+        if(downloadFinished)
+        {
+            OnMainThreadDownloadCompleted();
+            downloadFinished = false;
+        }
+
+        downloadSmoothened = downloadSmoothened + downloadPercentage / 100 - downloadSmoothened / 100;
+        InnerProgressBar.fillAmount = downloadSmoothened / 100;
 
         if (updateDownloading)
         {
             updateDownloading = false;
-            InnerProgressBar.fillAmount = downloadPercentage;
-            DownloadDetailText.text = localCurrentDownloadStep;
+            DownloadDetailText.text = $"Downloading... {localCurrentDownloadStep}";
+
+            DiscordController.DownloadProgress = $"Downloading... {localCurrentDownloadStep}";
+            DiscordController.DownloadUpdate();
         }
 
-        if (hasFinishedDownloading)
+        switch (request)
         {
-            hasFinishedDownloading = false;
-            OnMainThreadDownloadCompleted();
+            case SteamLoginResponse.NONE:
+                break;
+            case SteamLoginResponse.INVALIDPASSWORD:
+                DisplayErrorText("INVALID PASSWORD");
+                InvalidPasswordTips.SetActive(true);
+                break;
+            case SteamLoginResponse.PASSWORDUNSET:
+                DisplayErrorText("INVALID CREDENTIALS");
+                break;
+            case SteamLoginResponse.RATELIMIT:
+                DisplayErrorText("LOGIN RATELIMIT EXCEEDED");
+                break;
+            case SteamLoginResponse.INVALIDLOGINAUTHCODE:
+                DisplayErrorText("INVALID CODE");
+                break;
+            case SteamLoginResponse.EXPIREDLOGINAUTHCODE:
+                DisplayErrorText("CODE EXPIRED, PLEASE TRY AGAIN");
+                break;
+            case SteamLoginResponse.EXCEPTION:
+                SetLoginObjects(false);
+                DisplayErrorText("AN UNKNOWN ERROR OCCURED, TRY AGAIN");
+                break;
+            case SteamLoginResponse.BEATSABERNOTOWNED:
+                DisplayErrorText("BEAT SABER IS NOT PURCHASED ON THIS ACCOUNT");
+                break;
+            case SteamLoginResponse.CONNECTIONFAILED:
+                DisplayErrorText("STEAM CONNECTION FAILED, TRY AGAIN LATER");
+                break;
+            case SteamLoginResponse.NETNOTINSTALLED:
+                request = SteamLoginResponse.NONE;
+                DisplayErrorText("PLEASE INSTALL .NET 5.0.7");
+                break;
         }
-
-        if (!request.Equals(SteamLoginResponse.NONE))
-        {
-            switch (request)
-            {
-                case SteamLoginResponse.STEAMGUARD:
-                    request = SteamLoginResponse.NONE;
-                    createSteamCodePopup("Enter the Steam Guard code sent to your email address", SteamLoginResponse.STEAMGUARD);
-                    break;
-                case SteamLoginResponse.TWOFACTOR:
-                    request = SteamLoginResponse.NONE;
-                    createSteamCodePopup("Enter the two factor code from your 2FA device", SteamLoginResponse.TWOFACTOR);
-                    break;
-                case SteamLoginResponse.INVALID_PASSWORD:
-                    request = SteamLoginResponse.NONE;
-                    DisplayErrorText("INVALID PASSWORD");
-                    InvalidPasswordTips.SetActive(true);
-                    break;
-                case SteamLoginResponse.PASSWORDUNSET:
-                    request = SteamLoginResponse.NONE;
-                    DisplayErrorText("INVALID CREDENTIALS");
-                    break;
-                case SteamLoginResponse.RATELIMIT:
-                    request = SteamLoginResponse.NONE;
-                    DisplayErrorText("LOGIN RATELIMIT EXCEEDED");
-                    break;
-                case SteamLoginResponse.INVALIDLOGINAUTHCODE:
-                    request = SteamLoginResponse.NONE;
-                    DisplayErrorText("INVALID CODE");
-                    createSteamCodePopup("Enter the Steam Guard code sent to your email address", SteamLoginResponse.STEAMGUARD);
-                    break;
-                case SteamLoginResponse.EXPIREDLOGINAUTHCODE:
-                    request = SteamLoginResponse.NONE;
-                    DisplayErrorText("CODE EXPIRED, PLEASE TRY AGAIN");
-                    createSteamCodePopup("Enter the Steam Guard code sent to your email address", SteamLoginResponse.STEAMGUARD);
-                    break;
-                case SteamLoginResponse.EXCEPTION:
-                    request = SteamLoginResponse.NONE;
-                    DisplayErrorText("AN UNKNOWN ERROR OCCURED, TRY AGAIN");
-                    break;
-                case SteamLoginResponse.BEATSABERNOTOWNED:
-                    request = SteamLoginResponse.NONE;
-                    DisplayErrorText("BEAT SABER IS NOT PURCHASED ON THIS ACCOUNT!");
-                    break;
-            }
-        }
+        request = SteamLoginResponse.NONE;
     }
 
     private void SetDownloadingLayout()
     {
+        GameObject.Destroy(LoadingActiveInstance);
         SetLoginObjects(false);
         VersionText1.SetActive(false);
         VersionText2.SetActive(false);
@@ -182,11 +200,11 @@ public class DepotDownloaderObject : MonoBehaviour
         InstalledVersionObject.SetActive(false);
 
         isDownloading = false;
-        hasSetDownloading = true;
     }
 
     private void DisplayErrorText(string error)
     {
+        // Set to false to restart popup animation DON'T CHANGE
         ErrorTextObject.SetActive(false);
         ErrorTextObject.SetActive(true);
         ErrorText.text = error;
@@ -194,85 +212,49 @@ public class DepotDownloaderObject : MonoBehaviour
 
     public void LoginPressed()
     {
-        Log.Info("Triggered login again?");
+        if (!File.Exists("Resources\\DepotDownloader\\DepotDownloader.exe"))
+        {
+            DisplayErrorText("DEPOTDOWNLOADER NOT FOUND");
+            Log.Info("DepotDownloader doesn't exist in /Resources/");
+            return;
+        }
+        if (string.IsNullOrEmpty(Username.text) || string.IsNullOrEmpty(Password.text))
+        {
+            requestLoginPrompt = true;
+            request = SteamLoginResponse.PASSWORDUNSET;
+            return;
+        }
 
-        loginInProgress = true;
+        if (!Directory.Exists("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds")) Directory.CreateDirectory("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds");
+        File.WriteAllText("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds\\username.txt", $"{Username.text}");
+
+        Log.Info("Triggered login");
 
         SetLoginObjects(false);
 
-        if (!string.IsNullOrEmpty(Username.text) && !string.IsNullOrEmpty(Password.text))
+        InvalidPasswordTips.SetActive(false);
+
+        details = new LogOnDetails()
         {
-            if(!AccountSettingsStore.Loaded)
-                AccountSettingsStore.LoadFromFile("steamcreds");
+            Username = Username.text,
+            Password = Password.text
+        };
 
-            if (!Directory.Exists("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds"))
-            {
-                Directory.CreateDirectory("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds");
-            }
-            File.WriteAllText("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds\\username.txt", $"{Username.text}");
-
-
-            if (!attemptedConnection)
-            {
-                string loginKey = null;
-
-                AccountSettingsStore.Instance.LoginKeys.TryGetValue(Username.text, out loginKey);
-                
-                details = new LogOnDetails()
-                {
-                    Username = Username.text,
-                    Password = Password.text,
-                    ShouldRememberPassword = true,
-                    LoginKey = loginKey,
-                    LoginID = 0x534B32
-                };
-            }
-
-            session = new Steam3Session(details);
-
-            session.SteamGuardHandlers += SteamGuardTriggered;
-            session.TwoFactorHandlers += TwoFactorTriggered;
-            session.BadLoginHandlers += BadLoginResponse;
-            session.ConnectionFailedHandlers += ConnectionFailed;
-            session.LoginSuccessHandlers += LoginSuccess;
-            session.DepotNotOwnedHandlers += OnDepotNotOwned;
-            session.DepotOwnedHandlers += OnDepotIsOwned;
-
-            steamThread = new Thread(RunSteamLoginThread);
-            steamThread.Start();
-        }
-        else
-        {
-            loginInProgress = false;
-        }
+        StartDownload();
     }
 
     private void OnDepotNotOwned()
     {
         Log.Error("This user doesn't own the requested repo!");
         request = SteamLoginResponse.BEATSABERNOTOWNED;
-        hasSetDownloading = false;
-        attemptedConnection = false;
-        ContentDownloader.ShutdownSteam3();
+        requestLoginPrompt = true;
         Directory.Delete("Beat Saber", true);
-    }
-
-    private void OnDepotIsOwned()
-    {
-        Log.Info("Steam account owns Beat Saber!");
-        isDownloading = true;
-    }
-
-    private void OnDownloadCompleted()
-    {
-        Log.Info("Download completed!");
-        hasFinishedDownloading = true;
     }
 
     private void OnMainThreadDownloadCompleted()
     {
+        downloadPercentage = 100;
         SelectVersionButton.interactable = false;
-        ContentDownloader.ShutdownSteam3();
         BackButton.interactable = true;
         DownloadDetailText.text = "Download completed! Ready to Launch!";
         DownloadedText.gameObject.SetActive(true);
@@ -282,25 +264,29 @@ public class DepotDownloaderObject : MonoBehaviour
         UpdateButton.interactable = true;
         InstallIPAButton.interactable = true;
         LocalGameFilesButton.interactable = true;
-        File.WriteAllText("BeatSaberVersion.txt", $"{$"{VersionVar.instance.version}"}");
+        File.WriteAllText("BeatSaberVersion.txt", $"{VersionVar.instance.version}");
         InstalledVersionText.text = $"Currently Installed: {File.ReadAllText("BeatSaberVersion.txt")}";
         InstalledVersionAnim.runtimeAnimatorController = InstalledVer;
+        DiscordController.Installed = $"Currently Installed: {File.ReadAllText("BeatSaberVersion.txt")}";
+        DiscordController.DownloadProgress = "Download Finished";
+        DiscordController.DownloadUpdate();
+        Destroy(LoadingActiveInstance);
     }
 
     private void OnProgressUpdate(string current, float percentage)
     {
+        isDownloading = true;
         localCurrentDownloadStep = current;
         downloadPercentage = percentage;
         updateDownloading = true;
     }
 
-    private void createSteamCodePopup(string description, SteamLoginResponse request)
+    private void createSteamCodePopup(string description)
     {
-        isDialogDisplayed = true;
+        Destroy(LoadingActiveInstance);
         SteamCodePopup popup = GameObject.Instantiate(PopupPrefab, PopupAnchor.transform).GetComponent<SteamCodePopup>();
         popup.callback = steamCodePopupCallback;
         popup.Description.text = description;
-        popup.request = request;
         popup.gameObject.SetActive(true);
         VersionText1.SetActive(false);
         VersionText2.SetActive(false);
@@ -309,25 +295,14 @@ public class DepotDownloaderObject : MonoBehaviour
         StartButtonObject.gameObject.SetActive(false);
     }
 
-    private void steamCodePopupCallback(string code, SteamLoginResponse request)
+    private void steamCodePopupCallback(string code)
     {
-        isDialogDisplayed = false;
+        LoadingActiveInstance = GameObject.Instantiate(LoadingPopup, LoadingAnchor.transform);
         VersionText1.SetActive(true);
         VersionText2.SetActive(true);
-        if(request.Equals(SteamLoginResponse.STEAMGUARD))
-            details.AuthCode = code;
-        if (request.Equals(SteamLoginResponse.TWOFACTOR))
-            details.TwoFactorCode = code;
-        LoginPressed();
-    }
-
-    private void RunSteamLoginThread()
-    {
-        isLoggedIn = ContentDownloader.InitializeSteam3(session);
-
-        loginInProgress = false;
-
-        StartDownload();
+        details.TwoFactorCode = code;
+        Log.Debug("Entering code " + details.TwoFactorCode + " into DD");
+        dd.StandardInput.WriteLine(details.TwoFactorCode);
     }
 
     private void SetLoginObjects(bool state)
@@ -336,95 +311,205 @@ public class DepotDownloaderObject : MonoBehaviour
         BackButton.interactable = state;
         StartButtonObject.gameObject.SetActive(state);
         InputFields.SetActive(state);
-        if (!state && !isDownloading)
-            LoadingActiveInstance = GameObject.Instantiate(LoadingPopup, LoadingAnchor.transform);
 
-        else
+        if (!state && !isDownloading) LoadingActiveInstance = GameObject.Instantiate(LoadingPopup, LoadingAnchor.transform);
+        else if (LoadingActiveInstance != null) GameObject.Destroy(LoadingActiveInstance);
+
+    }
+
+    public static void MoveDirectory(string source, string target)
+    {
+        var stack = new Stack<Folders>();
+        stack.Push(new Folders(source, target));
+
+        while (stack.Count > 0)
         {
-            if (LoadingActiveInstance != null)
-                GameObject.Destroy(LoadingActiveInstance);
+            var folders = stack.Pop();
+            Directory.CreateDirectory(folders.Target);
+            foreach (var file in Directory.GetFiles(folders.Source, "*.*"))
+            {
+                string targetFile = Path.Combine(folders.Target, Path.GetFileName(file));
+                if (File.Exists(targetFile)) File.Delete(targetFile);
+                File.Move(file, targetFile);
+            }
+
+            foreach (var folder in Directory.GetDirectories(folders.Source))
+            {
+                stack.Push(new Folders(folder, Path.Combine(folders.Target, Path.GetFileName(folder))));
+            }
         }
-
+        Directory.Delete(source, true);
     }
 
-    public void SteamGuardTriggered()
+    public void StartDownload()
     {
-        attemptedConnection = true;
-        Log.Debug("SteamGuard Triggered");
-        request = SteamLoginResponse.STEAMGUARD;
-    }
+        Version selectedVersion = versions.First(x => x.BSVersion.Equals(VersionVar.instance.version));
+        Log.Info($"You selected version {selectedVersion.BSVersion} : {selectedVersion.BSManifest}");
+        DiscordController.BSVersion = $"{selectedVersion.BSVersion}";
 
-    public void TwoFactorTriggered()
-    {
-        attemptedConnection = true;
-        Log.Debug("Steam Account has Two Factor Auth enabled!");
-        request = SteamLoginResponse.TWOFACTOR;
-    }
-
-    public void BadLoginResponse(string message)
-    {
-        attemptedConnection = true;
-        Log.Debug($"Bad Login! RESP: {message}");
-    }
-
-    public void ConnectionFailed(string message)
-    {
-        attemptedConnection = false;
-        request = SteamLoginResponse.EXCEPTION;
-        Log.Error($"Connection Failed! RESP: {message}");
-
-        if (message.Contains("TwoFactorCodeMismatch"))
+        if (Directory.Exists(Environment.CurrentDirectory + "\\Beat Saber")) Directory.Delete(Environment.CurrentDirectory + "\\Beat Saber", true);
+        ProcessStartInfo ddInfo = new ProcessStartInfo
         {
-            //Rerun 2FA
-            request = SteamLoginResponse.TWOFACTOR;
-            attemptedConnection = true;
+            FileName = Environment.CurrentDirectory + "\\Resources\\DepotDownloader\\DepotDownloader.exe",
+            // Don't forget to change depot back to Beat Saber (-depot 620981 -app 620980), Aperture Desk job (-depot 1902492 -app 1902490)
+            Arguments = "-username \"" + details.Username + "\" -password \"" + details.Password.Replace("\"", "\\\"") + "\" -manifest " + ulong.Parse(selectedVersion.BSManifest) + " -dir \"" + Environment.CurrentDirectory + "\\Beat Saber\" -depot 620981 -app 620980",
+            RedirectStandardError = true,
+            RedirectStandardInput = true,
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+        Thread t = new Thread(() =>
+        {
+            try
+            {
+                ddStartedTimes++;
+                int myDDProcess = ddStartedTimes;
+                int lines = 0;
+                downloadFinished = false;
+                dd = Process.Start(ddInfo);
+                Log.Debug("Started dd");
+                //dd.WaitForInputIdle();
+                string line = "";
+                while (!dd.StandardOutput.EndOfStream && myDDProcess == ddStartedTimes)
+                {
+                    if (line.EndsWith("\n") || line.Contains(" code "))
+                    {
+                        Log.Debug(line);
+                        ProcessLine(line);
+                        line = "";
+                        lines++;
+                    }
+                    line += (char)dd.StandardOutput.Read();
+                }
+
+                if(lines <= 0)
+                {
+                    request = SteamLoginResponse.NETNOTINSTALLED;
+                    Process.Start("https://aka.ms/dotnet-core-applaunch?missing_runtime=true&arch=x64&rid=win10-x64&apphost_version=5.0.7");
+                    requestLoginPrompt = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                request = SteamLoginResponse.EXCEPTION;
+                requestLoginPrompt = true;
+                Log.Error(ex.ToString());
+            }
+        });
+        t.Start();
+    }
+
+    public void ProcessLine(string line)
+    {
+        if (line.Contains(" code "))
+        {
+            // Invoke prompt here
+            requestSteamGuardPopUp = true;
         }
-
-        if (message.Contains("InvalidPassword"))
+        if (line.Contains("LogOn requires a username and password to be set in"))
         {
-            request = SteamLoginResponse.INVALID_PASSWORD;
-        }
-
-        if (message.Contains("PasswordUnset"))
-        {
-            Log.Info("Steam Account doesn't exist");
+            requestLoginPrompt = true;
             request = SteamLoginResponse.PASSWORDUNSET;
+            Log.Debug("PASSWORDUNSET");
+            return;
         }
-
-        if (message.Contains("InvalidLoginAuthCode"))
+        if (line.Contains("InvalidPassword"))
         {
-            request = SteamLoginResponse.INVALIDLOGINAUTHCODE;
-            attemptedConnection = true;
+            requestLoginPrompt = true;
+            request = SteamLoginResponse.INVALIDPASSWORD;
+            Log.Debug("INVALIDPASSWORD");
+            return;
         }
-
-        if (message.Contains("ExpiredLoginAuthCode"))
+        if (line.Contains("404 for depot manifest") || line.Contains("App") && line.Contains("is not available from this account"))
         {
-            request = SteamLoginResponse.EXPIREDLOGINAUTHCODE;
-            attemptedConnection = true;
+            requestLoginPrompt = true;
+            OnDepotNotOwned();
+            Log.Debug("DEPOTNOTOWNED");
+            return;
         }
-
-        if (message.Contains("RateLimitExceeded"))
+        if (line.Contains("Got depot key"))
         {
+            // Depot is owned
+        }
+        if (line.Contains("Connection to Steam failed"))
+        {
+            requestLoginPrompt = true;
+            try
+            {
+                dd.Kill();
+            } catch { }
+            
+            request = SteamLoginResponse.CONNECTIONFAILED;
+
+            Log.Debug("CONNECTIONFAILED");
+            return;
+        }
+        if (line.Contains("RateLimitExceeded"))
+        {
+            requestLoginPrompt = true;
             request = SteamLoginResponse.RATELIMIT;
         }
-    }
-
-    public void LoginSuccess()
-    {
-        Log.Info("Successfully connected to Steam3 service!");
-    }
-
-    public async void StartDownload()
-    {
-        if (isLoggedIn)
+        if (line.Contains("InvalidLoginAuthCode"))
         {
-            hasSetDownloading = true;
-            Version selectedVersion = versions.First(x => x.BSVersion.Equals(VersionVar.instance.version));
-            Log.Info($"You selected version {selectedVersion.BSVersion}:{selectedVersion.BSManifest}");
-            ContentDownloader.Config.InstallDirectory = "Beat Saber";
-            ContentDownloader.Config.MaxDownloads = 1;
-            await ContentDownloader.DownloadAppAsync(620980, new List<(uint depotId, ulong manifestId)>() { (620981, ulong.Parse(selectedVersion.BSManifest))}, "public", "windows", "64", "english", false, false).ConfigureAwait(false);
+            try
+            {
+                dd.Kill();
+            }
+            catch { }
+            request = SteamLoginResponse.INVALIDLOGINAUTHCODE;
+            StartDownload();
+
+            Log.Debug("INVALIDLOGINAUTHCODE");
+            return;
         }
+        if (line.Contains("ExpiredLoginAuthCode"))
+        {
+            try
+            {
+                dd.Kill();
+            }
+            catch { }
+            request = SteamLoginResponse.EXPIREDLOGINAUTHCODE;
+            StartDownload();
+
+            Log.Debug("EXPIREDLOGINAUTHCODE");
+            return;
+        }
+        if (line.Contains("Got session token"))
+        {
+            //Logged in
+        }
+        if (line.Contains("Total downloaded:"))
+        {
+            // Download finished (maybe only partially but idc)
+            downloadFinished = true;
+        }
+        if (line.Contains("%"))
+        {
+            string percentage = line.Split('%')[0];
+            try
+            {
+                float per = float.Parse(percentage);
+                OnProgressUpdate(String.Format("{0:0.0}", per) + "%", per);
+            }
+            catch (Exception ex)
+            {
+                Log.Debug("Fuck you DD" + ex.ToString());
+            }
+        }
+    }
+}
+
+public class Folders
+{
+    public string Source { get; private set; }
+    public string Target { get; private set; }
+
+    public Folders(string source, string target)
+    {
+        Source = source;
+        Target = target;
     }
 }
 
@@ -433,11 +518,13 @@ enum SteamLoginResponse
     NONE,
     TWOFACTOR,
     STEAMGUARD,
-    INVALID_PASSWORD,
+    INVALIDPASSWORD,
     PASSWORDUNSET,
     RATELIMIT,
     EXCEPTION,
     INVALIDLOGINAUTHCODE,
     EXPIREDLOGINAUTHCODE,
-    BEATSABERNOTOWNED
+    BEATSABERNOTOWNED,
+    CONNECTIONFAILED,
+    NETNOTINSTALLED
 }

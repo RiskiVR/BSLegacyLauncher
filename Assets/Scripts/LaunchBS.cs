@@ -7,40 +7,74 @@ using UnityEngine;
 using UnityEngine.UI;
 public class LaunchBS : MonoBehaviour
 {
+    public Button LaunchButton;
+
+    [Header("Error Text Objects")]
     public GameObject ErrorTextObject;
     public Text ErrorText;
-    public Toggle OculusToggle;
-    public Toggle fpfcToggle;
-    public Toggle verboseToggle;
+
+    private void Delayfunc(float delay, Action action)
+    {
+        StartCoroutine(Delay(delay, action));
+    }
+
+    private static IEnumerator Delay(float delay, Action action)
+    {
+        yield return new WaitForSeconds(delay);
+        action.Invoke();
+    }
+
     public void LaunchBeatSaber()
     {
         var process = new Process()
         {
-            StartInfo = new ProcessStartInfo($"{System.Environment.CurrentDirectory}\\Beat Saber\\Beat Saber.exe", (OculusToggle.isOn ? "-vrmode oculus " : "") + (verboseToggle.isOn ? "--verbose " : "") + (fpfcToggle.isOn ? "fpfc " : ""))
+            StartInfo = new ProcessStartInfo($"{Environment.CurrentDirectory}\\Beat Saber\\Beat Saber.exe", (LaunchOptions.vars.oculus ? "-vrmode oculus " : "") + (LaunchOptions.vars.verbose ? "--verbose " : "") + (LaunchOptions.vars.fpfc ? "fpfc " : ""))
             {
                 UseShellExecute = false,
-                WorkingDirectory = $"{System.Environment.CurrentDirectory}\\Beat Saber"
+                WorkingDirectory = $"{Environment.CurrentDirectory}\\Beat Saber"
             }
         };
 
-
-        try
+        if (Process.GetProcessesByName("steam").Length > 0) 
         {
-            process.StartInfo.Environment["SteamAppId"] = "620980";
-            process.Start();
-        }
-        catch (Exception E)
-        {
-            if (Directory.Exists("Beat Saber"))
+            try
             {
-                if (!File.Exists("Beat Saber\\Beat Saber.exe"))
-                    ErrorText.text = "BAD INSTALL! PLEASE REINSTALL BEAT SABER";
+                process.StartInfo.Environment["SteamAppId"] = "620980";
+                process.Start();
+
+                if (LaunchOptions.vars.verbose)
+                {
+                    throw new Exception();
+                }
             }
-            else ErrorText.text = "BEAT SABER NOT INSTALLED";
+            catch (Exception E)
+            {
+                if (LaunchOptions.vars.verbose)
+                {
+                    LaunchButton.interactable = false;
+                    Delayfunc(5, delegate { LaunchButton.interactable = true; });
+                    throw new Exception("Opening in Debug mode (Launcher remaining open)");
+                }
+
+                if (Directory.Exists("Beat Saber"))
+                {
+                    if (!File.Exists("Beat Saber\\Beat Saber.exe"))
+                        ErrorText.text = "BAD INSTALL! PLEASE REINSTALL BEAT SABER";
+                }
+                else ErrorText.text = "BEAT SABER NOT INSTALLED";
+                ErrorTextObject.SetActive(false);
+                ErrorTextObject.SetActive(true);
+                throw new Exception("Beat Saber Not Installed");
+            }
+        }
+        else
+        {
+            ErrorText.text = "STEAM NOT RUNNING";
             ErrorTextObject.SetActive(false);
             ErrorTextObject.SetActive(true);
-            throw new Exception("Beat Saber Not Installed");
+            throw new Exception("Steam Not Running");
         }
     }
+        
 }
 
