@@ -37,7 +37,7 @@
       <p align="center">
       <img src="https://github.com/RiskiVR/BSLegacyLauncher/blob/media/readme/Download.png" alt="Logo" width="400" height="50">
     <br />
-    <a href="https://discord.gg/MrwMx5e">Join Our Discord!</a>
+    <a href="https://discord.gg/MrwMx5e">Join our Discord</a>
     ·
     <a href="https://github.com/RiskiVR/BSLegacyLauncher/issues">Report Bug</a>
     ·
@@ -69,9 +69,10 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-BSLegacyLauncher is a program designed to fetch any version of Beat Saber from Steam's depots, and launch it within the same program! 
+Ever wanted or needed to have the ability to switch between two versions? Then this is the program for you!
+<br/>
+<br/>BSLegacyLauncher is a program designed to fetch any version of Beat Saber from Steam's depots, and launch it within the same program! 
 <br/>You do not need to move it to your Steam directory, as your current installation will remain untouched!
-</br>So if you ever want to switch between two versions, this is the program for you!
 
 
 ### Built With
@@ -97,7 +98,7 @@ See the [open issues](https://github.com/RiskiVR/BSLegacyLauncher/issues) for a 
 <!-- CONTACT -->
 ## Contact
 
-For Support [Join our Discord!](https://discord.gg/MrwMx5e)
+For Support, [Join our Discord!](https://discord.gg/MrwMx5e)
 
 Project Link: [https://github.com/RiskiVR/BSLegacyLauncher](https://github.com/RiskiVR/BSLegacyLauncher)
 
