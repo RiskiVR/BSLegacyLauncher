@@ -21,6 +21,13 @@
       "row": 0
    },
    {
+      "BSVersion":"0.11.0b1",
+      "BSManifest":"8892605455517437772",
+      "ReleaseURL":"NULL",
+      "year": "2018",
+      "row": 1
+   },
+   {
       "BSVersion":"0.11.0",
       "BSManifest":"8700049030626148111",
       "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/1675787121569907303",
