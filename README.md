@@ -69,10 +69,12 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-Ever wanted or needed to have the ability to switch between two versions? Then this is the program for you!
+Ever wanted or needed to have the ability to switch between any versions? Then this is the program for you!
 <br/>
 <br/>BSLegacyLauncher is a program designed to fetch any version of Beat Saber from Steam's depots, and launch it within the same program! 
-<br/>You do not need to move it to your Steam directory, as your current installation will remain untouched!
+<br/>You can install up to as many versions as you want and quickly switch between them!
+<br/>You can even create a Master CustomLevels folder linked across all versions!
+<br/>Your current Steam install will remain untouched!
 
 
 ### Built With
