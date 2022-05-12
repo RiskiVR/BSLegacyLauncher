@@ -7,31 +7,54 @@ using UnityEngine.UI;
 public class InstalledVer : MonoBehaviour
 {
     public Text currentVersion;
-    public DiscordController DiscordController;
+    public static Text publicCurrentVersion;
+    public static DiscordController DiscordController = new DiscordController();
     void Start()
     {
-        if (File.Exists("Beat Saber\\Beat Saber.exe"))
-            {
-            if (File.Exists("Beat Saber\\BeatSaberVersion.txt"))
-            {
-                currentVersion.text = $"Currently Installed: {File.ReadAllText("Beat Saber\\BeatSaberVersion.txt")}";
-                File.WriteAllText("BeatSaberVersion.txt", $"{File.ReadAllText("Beat Saber\\BeatSaberVersion.txt")}");
-                DiscordController.Installed = $"Currently Installed: {File.ReadAllText("Beat Saber\\BeatSaberVersion.txt")}";
-                DiscordController.BSVersion = $"{File.ReadAllText("Beat Saber\\BeatSaberVersion.txt")}";
-                DiscordController.VersionStart();
-            }
-            else
-            {
-                currentVersion.text = $"Currently Installed: {File.ReadAllText("BeatSaberVersion.txt")}";
-                DiscordController.Installed = $"Currently Installed: {File.ReadAllText("BeatSaberVersion.txt")}";
-                DiscordController.BSVersion = $"{File.ReadAllText("BeatSaberVersion.txt")}";
-                DiscordController.VersionStart();
-            }
-        }
-        else
+        DiscordController.BSVersion = InstalledVersionToggle.BSVersion;
+        publicCurrentVersion = currentVersion;
+        UpdateText(true);
+    }
+
+    public static void UpdateText(bool first = false)
+    {
+        // Handle old installs
+        if(!Directory.Exists(InstalledVersionToggle.BSBaseDir)) Directory.CreateDirectory(InstalledVersionToggle.BSBaseDir);
+        string version = "";
+        // Make sure the Beat Saber version gets recognized and then saved to the new location
+        if (File.Exists("BeatSaberVersion.txt"))
         {
-            DiscordController.Installed = "No version installed";
-            DiscordController.VersionStart();
+            version = File.ReadAllText("BeatSaberVersion.txt");
+            File.Delete("BeatSaberVersion.txt");
         }
+        if (File.Exists("Beat Saber\\BeatSaberVersion.txt"))
+        {
+            version = File.ReadAllText("Beat Saber\\BeatSaberVersion.txt");
+            File.Delete("Beat Saber\\BeatSaberVersion.txt");
+        }
+
+        // Write to new location if old found
+        if (version != "") File.WriteAllText(InstalledVersionToggle.BSBaseDir + "BeatSaberVersion.txt", version);
+
+        // Move Beat Saber Install to corresponding new folder
+        if (Directory.Exists("Beat Saber"))
+        {
+            InstalledVersionToggle.SetBSVersion(version, true);
+            Directory.Move("Beat Saber", InstalledVersionToggle.BSDirectory);
+            File.WriteAllText(InstalledVersionToggle.BSDirectory + "BeatSaberVersion.txt", version);
+        }
+
+        // actually update text
+        if(File.Exists(InstalledVersionToggle.BSBaseDir + "BeatSaberVersion.txt"))
+        {
+            version = File.ReadAllText(InstalledVersionToggle.BSBaseDir + "BeatSaberVersion.txt");
+            Debug.Log(version);
+            publicCurrentVersion.text = "Currently Selected: " + version;
+            DiscordController.Installed = $"Currently Selected: {InstalledVersionToggle.BSVersion}";
+        } else DiscordController.Installed = "No version installed";
+        
+        InstalledVersionToggle.SetBSVersion(version, true);
+        DiscordController.VersionStart();
+        UninstallCheck.DoUninstallCheck(first);
     }
 }

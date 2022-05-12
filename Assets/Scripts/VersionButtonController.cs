@@ -12,11 +12,12 @@ public class VersionButtonController : MonoBehaviour
 {
     public static List<Version> versions = new List<Version>();
     public static Dictionary<string, Dictionary<int, List<Version>>> versionTable = new Dictionary<string, Dictionary<int, List<Version>>>();
-    Dictionary<int, List<Version>> toDo = new Dictionary<int, List<Version>>();
+    public static Dictionary<int, List<Version>> toDo = new Dictionary<int, List<Version>>();
     float lastButtonSpawn = 0.0f;
 
     [Header("Prefabs")]
     public GameObject VersionButtonPrefab;
+    public static GameObject PublicYearButtonPrefab;
     public GameObject YearButtonPrefab;
 
     [Header("Patreons")]
@@ -26,28 +27,42 @@ public class VersionButtonController : MonoBehaviour
 
     [Header("Other stuff")]
     public GameObject _ClickSound;
+    public static GameObject _PublicClickSound;
     public GameObject Plane;
+    public static GameObject PublicPlane = null;
     public GameObject Versions;
+    public static GameObject PublicVersions = null;
     public GameObject Years;
+    public static GameObject PublicYears = null;
     public GameObject Bar;
+    public static GameObject PublicBar = null;
 
     public GameObject DownloadButton;
+    public static GameObject PublicDownloadButton;
     public GameObject VersionText2;
     public GameObject ReleaseInfoButton;
+    public static GameObject PublicReleaseInfoButton;
 
-    bool yearsAdded = false;
-    int currentRow;
-    int currentColumn;
+    public static bool yearsAdded = false;
+    public static int currentRow;
+    public static int currentColumn;
 
     // Just ignore that variable name. I scambled the sorting Riski made and didn't bother to rename the vars
-    List<int> minors = new List<int>();
+    public static List<int> minors = new List<int>();
 
 
     // Start is called before the first frame update
     void Start()
     {
+        PublicVersions = Versions;
+        PublicYears = Years;
+        PublicBar = Bar;
+        PublicPlane = Plane;
+        PublicYearButtonPrefab = YearButtonPrefab;
+        _PublicClickSound = _ClickSound;
+        PublicDownloadButton = DownloadButton;
+        PublicReleaseInfoButton = ReleaseInfoButton;
         // Don't forget to add back
-        
         try
         {
             // Update cache
@@ -57,11 +72,13 @@ public class VersionButtonController : MonoBehaviour
             d = c.DownloadString("https://raw.githubusercontent.com/RiskiVR/BSLegacyLauncher/master/Resources/Patreons.json");
             File.WriteAllText("Resources/Patreons.json", d);
         } catch { }
-        
-
 
         string versionList = File.ReadAllText("Resources/BSVersions.json");
         versions = JsonConvert.DeserializeObject<List<Version>>(versionList);
+
+        // Aperture
+        if(ComputersVars.useApertureDeskJob) versions.Add(new Version { BSManifest = "152863936826529847", BSVersion = "Aperture", year = "2022", row = 3 });
+
 
         string patreonsList = File.ReadAllText("Resources/Patreons.json");
         List<Patreon> patreons = JsonConvert.DeserializeObject<List<Patreon>>(patreonsList);
@@ -76,7 +93,18 @@ public class VersionButtonController : MonoBehaviour
         GenerateDict();
     }
 
-    void GenerateDict()
+    public static void ClearVersions()
+    {
+        currentColumn = 0;
+        currentRow = 0;
+        toDo = new Dictionary<int, List<Version>>();
+        foreach (Transform t in PublicVersions.transform)
+        {
+            Destroy(t.gameObject);
+        }
+    }
+
+    public static void GenerateDict()
     {
         versionTable.Clear();
         Dictionary<string, List<Version>> yearTable = new Dictionary<string, List<Version>>();
@@ -111,7 +139,7 @@ public class VersionButtonController : MonoBehaviour
         }
     }
 
-    void AddYearButtons()
+    public static void AddYearButtons()
     {
         int yearCount = versionTable.Keys.Count;
         const int yearButtonWidth = 87;
@@ -121,7 +149,7 @@ public class VersionButtonController : MonoBehaviour
         foreach (string year in versionTable.Keys)
         {
             int ii = i + 1;
-            GameObject yearButton = Instantiate(YearButtonPrefab, Years.transform);
+            GameObject yearButton = Instantiate(PublicYearButtonPrefab, PublicYears.transform);
             yearButton.GetComponent<Button>().onClick.AddListener(() => { YearClicked(year, ii, yearCount); });
             yearButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(i * yearButtonWidth + 87, 0);
             yearButton.GetComponentInChildren<Text>().text = year;
@@ -129,36 +157,31 @@ public class VersionButtonController : MonoBehaviour
         }
     }
 
-    void YearClicked(string year, int barPos, int yearCount)
+    public static void YearClicked(string year, int barPos, int yearCount)
     {
         DisableYearButtons();
-        Bar.GetComponent<ButtonController>().set(barPos, yearCount);
+        PublicBar.GetComponent<ButtonController>().set(barPos, yearCount);
         StartVersionDisplay(year);
     }
 
-    void StartVersionDisplay(string year)
+    public static void StartVersionDisplay(string year)
     {
-        toDo = new Dictionary<int, List<Version>>();
+        ClearVersions();
         foreach(KeyValuePair<int, List<Version>> y in versionTable[year])
         {
             toDo.Add(y.Key, y.Value);
         }
         minors = toDo.Keys.ToList();
-        currentColumn = 0;
-        currentRow = 0;
     }
 
-    void DisableYearButtons()
+    public static void DisableYearButtons()
     {
         GenerateDict();
-        Versions.SetActive(true);
-        foreach(Transform t in Versions.transform)
-        {
-            Destroy(t.gameObject);
-        }
-        _ClickSound.GetComponent<AudioSource>().Play();
-        Bar.SetActive(true);
-        Plane.SetActive(true);
+        PublicVersions.SetActive(true);
+        ClearVersions();
+        _PublicClickSound.GetComponent<AudioSource>().Play();
+        PublicBar.SetActive(true);
+        PublicPlane.SetActive(true);
     }
 
     // Update is called once per frame
@@ -175,13 +198,24 @@ public class VersionButtonController : MonoBehaviour
                 
                 button.GetComponentInChildren<Button>().onClick.AddListener(() =>
                 {
+                    if(InstalledVersionToggle.installedVersions) InstalledVersionToggle.SetBSVersion(version);
                     VersionText2.SetActive(true);
                     DownloadButton.SetActive(true);
+                    DownloadButton.GetComponent<Button>().interactable = !InstalledVersionToggle.installedVersions;
                     Versions.GetComponent<VersionVar>().ListVersion(version);
                     ReleaseInfoButton.SetActive(true);
-                    ReleaseInfoButton.GetComponent<Button>().interactable = true;
+                    ReleaseInfoButton.GetComponent<Button>().interactable = false;
+                    if (versions.FirstOrDefault(x => x.BSVersion == version) != null)
+                    {
+                        ReleaseInfoButton.GetComponent<Button>().interactable = true;
+                    }
+                        
                     _ClickSound.GetComponent<AudioSource>().Play();
                 });
+                if (InstalledVersionToggle.GetInstalledVersions().Contains(version) && !InstalledVersionToggle.installedVersions)
+                {
+                    button.GetComponentInChildren<Button>().interactable = false;
+                }
                 currentColumn++;
                 toDo[minors[0]].RemoveAt(0);
                 if(toDo[minors[0]].Count <= 0) toDo.Remove(minors[0]);

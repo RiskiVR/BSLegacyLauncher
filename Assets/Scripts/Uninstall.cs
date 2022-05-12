@@ -10,50 +10,46 @@ public class Uninstall : MonoBehaviour
     public GameObject ErrorTextObject;
     public Text ErrorText;
     public Text InstalledVer;
+
+    public void DisplayErrorText(string text)
+    {
+        ErrorText.text = text;
+        ErrorTextObject.SetActive(false);
+        ErrorTextObject.SetActive(true);
+    }
+
     public void UninstallTrigger()
     {
+        if (!AdvancedButtons.IsUserAnAdmin())
+        {
+            DisplayErrorText("REQUIRES ADMIN PERMISSIONS");
+            throw new Exception("REQUIRES ADMIN PERMISSIONS");
+        }
         try
         {
-            if (Directory.Exists("Backups"))
+            if (Directory.Exists(InstalledVersionToggle.BSDirectory + "CustomSabers"))
+                DepotDownloaderObject.MoveDirectory(InstalledVersionToggle.BSDirectory + "CustomSabers", $"Backups/Beat Saber {InstalledVersionToggle.BSVersion}/CustomSabers");
+
+            if (Directory.Exists(InstalledVersionToggle.BSDirectory + "UserData"))
+                DepotDownloaderObject.MoveDirectory(InstalledVersionToggle.BSDirectory + "UserData", $"Backups/Beat Saber {InstalledVersionToggle.BSVersion}/UserData");
+
+            if (Directory.Exists(InstalledVersionToggle.BSDirectory + "Plugins"))
+                DepotDownloaderObject.MoveDirectory(InstalledVersionToggle.BSDirectory + "Plugins", $"Backups/Old {InstalledVersionToggle.BSVersion} Plugins");
+
+            Directory.Delete(InstalledVersionToggle.BSDirectory, true);
+
+            if (File.Exists(InstalledVersionToggle.BSBaseDir + "BeatSaberVersion.txt"))
             {
-                Directory.Delete("Backups", true);
-            }
-            Directory.CreateDirectory("Backups");
-
-            if (Directory.Exists("Beat Saber/CustomSongs"))
-                Directory.Move("Beat Saber/CustomSongs", "Backups/CustomSongs");
-
-            if (Directory.Exists("Beat Saber/CustomSabers"))
-                Directory.Move("Beat Saber/CustomSabers", "Backups/CustomSabers");
-
-            if (Directory.Exists("Beat Saber/Beat Saber_Data/CustomLevels"))
-                Directory.Move("Beat Saber/Beat Saber_Data/CustomLevels", "Backups/CustomLevels");
-
-            if (Directory.Exists("Beat Saber/Beat Saber_Data/CustomWIPLevels"))
-                Directory.Move("Beat Saber/Beat Saber_Data/CustomWIPLevels", "Backups/CustomWIPLevels");
-
-            if (Directory.Exists("Beat Saber/UserData"))
-                Directory.Move("Beat Saber/UserData", "Backups/UserData");
-
-            if (Directory.Exists("Beat Saber/Plugins"))
-                Directory.Move("Beat Saber/Plugins", $"Backups/Old {File.ReadAllText("BeatSaberVersion.txt")} Plugins");
-
-            Directory.Delete("Beat Saber", true);
-
-            if (File.Exists("BeatSaberVersion.txt"))
-            {
-                File.Delete("BeatSaberVersion.txt");
+                File.Delete(InstalledVersionToggle.BSBaseDir + "BeatSaberVersion.txt");
             }
         }
         
         catch (Exception E)
         {
-            ErrorText.text = "PATH IS DENIED";
-            ErrorTextObject.SetActive(false);
-            ErrorTextObject.SetActive(true);
+            DisplayErrorText("PATH IS DENIED OR FOLDER IS EMPTY");
             throw new Exception("UnauthorizedAccessException: Access to the path is denied");
         }
-        
+        UninstallCheck.DoUninstallCheck();
     }
     public void ClearVerText()
     {

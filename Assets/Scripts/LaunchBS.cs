@@ -28,10 +28,10 @@ public class LaunchBS : MonoBehaviour
     {
         var process = new Process()
         {
-            StartInfo = new ProcessStartInfo($"{Environment.CurrentDirectory}\\Beat Saber\\Beat Saber.exe", (LaunchOptions.vars.oculus ? "-vrmode oculus " : "") + (LaunchOptions.vars.verbose ? "--verbose " : "") + (LaunchOptions.vars.fpfc ? "fpfc " : ""))
+            StartInfo = new ProcessStartInfo($"{InstalledVersionToggle.BSDirectory}Beat Saber.exe", (LaunchOptions.vars.oculus ? "-vrmode oculus " : "") + (LaunchOptions.vars.verbose ? "--verbose " : "") + (LaunchOptions.vars.fpfc ? "fpfc " : ""))
             {
                 UseShellExecute = false,
-                WorkingDirectory = $"{Environment.CurrentDirectory}\\Beat Saber"
+                WorkingDirectory = InstalledVersionToggle.BSDirectory
             }
         };
 
@@ -56,9 +56,9 @@ public class LaunchBS : MonoBehaviour
                     throw new Exception("Opening in Debug mode (Launcher remaining open)");
                 }
 
-                if (Directory.Exists("Beat Saber"))
+                if (Directory.Exists(InstalledVersionToggle.BSDirectory))
                 {
-                    if (!File.Exists("Beat Saber\\Beat Saber.exe"))
+                    if (!File.Exists(InstalledVersionToggle.BSDirectory + "Beat Saber.exe"))
                         ErrorText.text = "BAD INSTALL! PLEASE REINSTALL BEAT SABER";
                 }
                 else ErrorText.text = "BEAT SABER NOT INSTALLED";

@@ -16,15 +16,12 @@ public class DepotDownloaderObject : MonoBehaviour
 {
     public static DepotDownloaderObject instance;
 
-    public static List<Version> versions = new List<Version>();
-
     [Header("Other scripts")]
     public DiscordController DiscordController;
 
     [Header("Scene Objects")]
     public InputField Username;
     public InputField Password;
-    public Button StartButton;
     public Button BackButton;
     public Button ExitButton;
     public Button UpdateButton;
@@ -41,14 +38,13 @@ public class DepotDownloaderObject : MonoBehaviour
     public Animator DownloadingTextAnim;
     public GameObject DownloadedText;
     public Animator DownloadedTextAnim;
+    public Animator PreAllocatingTextAnim;
     public Animator LoginTextAnim;
     public TextMesh DownloadDetailText;
     public GameObject ProgressBar;
     public Image InnerProgressBar;
-    public Button SelectVersionButton;
     public Text InstalledVersionText;
     public GameObject InstalledVersionObject;
-    public Animator InstalledVersionAnim;
     public Button LocalGameFilesButton;
     public Button InstallIPAButton;
     public GameObject InvalidPasswordTips;
@@ -88,9 +84,6 @@ public class DepotDownloaderObject : MonoBehaviour
         instance = this;
 
         Log.Logger.AddTarget(new UnityConsoleLogTarget());
-
-        string versionList = File.ReadAllText("Resources/BSVersions.json");
-        versions = JsonConvert.DeserializeObject<List<Version>>(versionList);
 
         Username.onEndEdit.AddListener(value =>
         {
@@ -135,7 +128,7 @@ public class DepotDownloaderObject : MonoBehaviour
             downloadFinished = false;
         }
 
-        downloadSmoothened = downloadSmoothened + downloadPercentage / 100 - downloadSmoothened / 100;
+        downloadSmoothened = downloadSmoothened + downloadPercentage / 50 - downloadSmoothened / 50;
         InnerProgressBar.fillAmount = downloadSmoothened / 100;
 
         if (updateDownloading)
@@ -167,6 +160,9 @@ public class DepotDownloaderObject : MonoBehaviour
             case SteamLoginResponse.EXPIREDLOGINAUTHCODE:
                 DisplayErrorText("CODE EXPIRED, PLEASE TRY AGAIN");
                 break;
+            case SteamLoginResponse.NOTENOUGHSPACE:
+                DisplayErrorText("NOT ENOUGH SPACE ON DISK");
+                break;
             case SteamLoginResponse.EXCEPTION:
                 SetLoginObjects(false);
                 DisplayErrorText("AN UNKNOWN ERROR OCCURED, TRY AGAIN");
@@ -179,7 +175,14 @@ public class DepotDownloaderObject : MonoBehaviour
                 break;
             case SteamLoginResponse.NETNOTINSTALLED:
                 request = SteamLoginResponse.NONE;
-                DisplayErrorText("PLEASE INSTALL .NET 5.0.7");
+                DisplayErrorText("PLEASE INSTALL .NET 6.0.7");
+                break;
+            case SteamLoginResponse.PATHDENIED:
+                DisplayErrorText("PATH IS DENIED");
+                break;
+            case SteamLoginResponse.PREALLOCATING:
+                LoginTextAnim.runtimeAnimatorController = TextDismiss;
+                PreAllocatingTextAnim.runtimeAnimatorController = TextEnter;
                 break;
         }
         request = SteamLoginResponse.NONE;
@@ -193,7 +196,7 @@ public class DepotDownloaderObject : MonoBehaviour
         VersionText2.SetActive(false);
         DownloadingText.text = $"Downloading {VersionVar.instance.version}...";
         DownloadingTextAnim.runtimeAnimatorController = TextEnter;
-        LoginTextAnim.runtimeAnimatorController = TextDismiss;
+        PreAllocatingTextAnim.runtimeAnimatorController = TextDismiss;
         ProgressBar.SetActive(true);
         ExitButton.interactable = false;
         UpdateButton.interactable = false;
@@ -254,7 +257,6 @@ public class DepotDownloaderObject : MonoBehaviour
     private void OnMainThreadDownloadCompleted()
     {
         downloadPercentage = 100;
-        SelectVersionButton.interactable = false;
         BackButton.interactable = true;
         DownloadDetailText.text = "Download completed! Ready to Launch!";
         DownloadedText.gameObject.SetActive(true);
@@ -264,10 +266,12 @@ public class DepotDownloaderObject : MonoBehaviour
         UpdateButton.interactable = true;
         InstallIPAButton.interactable = true;
         LocalGameFilesButton.interactable = true;
-        File.WriteAllText("BeatSaberVersion.txt", $"{VersionVar.instance.version}");
-        InstalledVersionText.text = $"Currently Installed: {File.ReadAllText("BeatSaberVersion.txt")}";
-        InstalledVersionAnim.runtimeAnimatorController = InstalledVer;
-        DiscordController.Installed = $"Currently Installed: {File.ReadAllText("BeatSaberVersion.txt")}";
+        InstalledVersionToggle.SetBSVersion(VersionVar.instance.version);
+        if(ComputersVars.useApertureDeskJob)
+        {
+            File.WriteAllText(InstalledVersionToggle.BSDirectory + "Beat Saber.exe", ":D This is real Beat Saber");
+        }
+        // InstalledVersionObject.SetActive(false); this just hides it forever
         DiscordController.DownloadProgress = "Download Finished";
         DiscordController.DownloadUpdate();
         Destroy(LoadingActiveInstance);
@@ -307,7 +311,6 @@ public class DepotDownloaderObject : MonoBehaviour
 
     private void SetLoginObjects(bool state)
     {
-        StartButton.interactable = state;
         BackButton.interactable = state;
         StartButtonObject.gameObject.SetActive(state);
         InputFields.SetActive(state);
@@ -325,7 +328,7 @@ public class DepotDownloaderObject : MonoBehaviour
         while (stack.Count > 0)
         {
             var folders = stack.Pop();
-            Directory.CreateDirectory(folders.Target);
+            if(!Directory.Exists(folders.Target)) Directory.CreateDirectory(folders.Target);
             foreach (var file in Directory.GetFiles(folders.Source, "*.*"))
             {
                 string targetFile = Path.Combine(folders.Target, Path.GetFileName(file));
@@ -343,22 +346,24 @@ public class DepotDownloaderObject : MonoBehaviour
 
     public void StartDownload()
     {
-        Version selectedVersion = versions.First(x => x.BSVersion.Equals(VersionVar.instance.version));
+        ErrorTextObject.SetActive(false);
+        Version selectedVersion = VersionButtonController.versions.First(x => x.BSVersion.Equals(VersionVar.instance.version));
         Log.Info($"You selected version {selectedVersion.BSVersion} : {selectedVersion.BSManifest}");
         DiscordController.BSVersion = $"{selectedVersion.BSVersion}";
 
-        if (Directory.Exists(Environment.CurrentDirectory + "\\Beat Saber")) Directory.Delete(Environment.CurrentDirectory + "\\Beat Saber", true);
+        if (Directory.Exists(InstalledVersionToggle.GetBSDirectory(selectedVersion.BSVersion))) Directory.Delete(InstalledVersionToggle.GetBSDirectory(selectedVersion.BSVersion), true);
         ProcessStartInfo ddInfo = new ProcessStartInfo
         {
             FileName = Environment.CurrentDirectory + "\\Resources\\DepotDownloader\\DepotDownloader.exe",
             // Don't forget to change depot back to Beat Saber (-depot 620981 -app 620980), Aperture Desk job (-depot 1902492 -app 1902490)
-            Arguments = "-username \"" + details.Username + "\" -password \"" + details.Password.Replace("\"", "\\\"") + "\" -manifest " + ulong.Parse(selectedVersion.BSManifest) + " -dir \"" + Environment.CurrentDirectory + "\\Beat Saber\" -depot 620981 -app 620980",
-            RedirectStandardError = true,
+            Arguments = "-username \"" + details.Username + "\" -password \"" + details.Password.Replace("\"", "\\\"") + "\" -manifest " + ulong.Parse(selectedVersion.BSManifest) + " -dir \"" + InstalledVersionToggle.GetBSDirectory(selectedVersion.BSVersion).TrimEnd('\\') + "\" -depot 620981 -app 620980",
             RedirectStandardInput = true,
             RedirectStandardOutput = true,
             UseShellExecute = false,
             CreateNoWindow = true,
         };
+        if (ComputersVars.useApertureDeskJob)
+            ddInfo.Arguments = "-username \"" + details.Username + "\" -password \"" + details.Password.Replace("\"", "\\\"") + "\" -manifest " + ulong.Parse(selectedVersion.BSManifest) + " -dir \"" + InstalledVersionToggle.GetBSDirectory(selectedVersion.BSVersion).TrimEnd('\\') + "\" -depot 1902492 -app 1902490";
         Thread t = new Thread(() =>
         {
             try
@@ -373,7 +378,7 @@ public class DepotDownloaderObject : MonoBehaviour
                 string line = "";
                 while (!dd.StandardOutput.EndOfStream && myDDProcess == ddStartedTimes)
                 {
-                    if (line.EndsWith("\n") || line.Contains(" code "))
+                    if (line.EndsWith(Environment.NewLine) || line.Contains(" code "))
                     {
                         Log.Debug(line);
                         ProcessLine(line);
@@ -383,10 +388,10 @@ public class DepotDownloaderObject : MonoBehaviour
                     line += (char)dd.StandardOutput.Read();
                 }
 
-                if(lines <= 0)
+                if (lines <= 0)
                 {
                     request = SteamLoginResponse.NETNOTINSTALLED;
-                    Process.Start("https://aka.ms/dotnet-core-applaunch?missing_runtime=true&arch=x64&rid=win10-x64&apphost_version=5.0.7");
+                    Process.Start("https://link.bslegacy.com/dotNET_6-0-3");
                     requestLoginPrompt = true;
                 }
             }
@@ -402,7 +407,7 @@ public class DepotDownloaderObject : MonoBehaviour
 
     public void ProcessLine(string line)
     {
-        if (line.Contains(" code "))
+        if (line.Contains("This account is protected"))
         {
             // Invoke prompt here
             requestSteamGuardPopUp = true;
@@ -476,6 +481,26 @@ public class DepotDownloaderObject : MonoBehaviour
             Log.Debug("EXPIREDLOGINAUTHCODE");
             return;
         }
+        if (line.Contains("There is not enough space"))
+        {
+            requestLoginPrompt = true;
+            request = SteamLoginResponse.NOTENOUGHSPACE;
+            Log.Debug("There is not enough space on the disk");
+            return;
+        }
+        if (line.Contains("Access to the path is denied"))
+        {
+            requestLoginPrompt = true;
+            request = SteamLoginResponse.PATHDENIED;
+            Log.Debug("Access to the path is denied");
+            return;
+        }
+        if (line.Contains("Pre-allocating"))
+        {
+            request = SteamLoginResponse.PREALLOCATING;
+            Log.Debug("Pre-allocating Disk Space for Beat Saber");
+            return;
+        }
         if (line.Contains("Got session token"))
         {
             //Logged in
@@ -526,5 +551,8 @@ enum SteamLoginResponse
     EXPIREDLOGINAUTHCODE,
     BEATSABERNOTOWNED,
     CONNECTIONFAILED,
-    NETNOTINSTALLED
+    NETNOTINSTALLED,
+    NOTENOUGHSPACE,
+    PREALLOCATING,
+    PATHDENIED
 }

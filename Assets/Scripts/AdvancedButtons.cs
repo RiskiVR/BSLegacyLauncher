@@ -7,12 +7,34 @@ using System.IO;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Security.Principal;
+using System.Runtime.InteropServices;
 
 public class AdvancedButtons : MonoBehaviour
 {
     public Text ErrorText;
+    public Text FeedbackText;
     public GameObject ErrorTextObject;
     public GameObject CuteErrorObject;
+    public GameObject FeedbackTextObject;
+
+    private void DisplayErrorText(string text)
+    {
+        // Set to false to restart popup animation DON'T CHANGE
+        FeedbackTextObject.SetActive(false);
+        ErrorTextObject.SetActive(false);
+        ErrorTextObject.SetActive(true);
+        ErrorText.text = text;
+    }
+    private void DisplayFeedbackText(string text)
+    {
+        // Set to false to restart popup animation DON'T CHANGE
+        ErrorTextObject.SetActive(false);
+        FeedbackTextObject.SetActive(false);
+        FeedbackTextObject.SetActive(true);
+        FeedbackText.text = text;
+    }
+
     public void BrowseAppdata()
     {
         Process.Start(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\LocalLow\\Hyperbolic Magnetism");
@@ -26,9 +48,7 @@ public class AdvancedButtons : MonoBehaviour
         if (Directory.Exists(targetDirectoryPath))
         {
             CuteErrorObject.SetActive(false);
-            ErrorText.text = "BACKUP ALREADY EXISTS";
-            ErrorTextObject.SetActive(false);
-            ErrorTextObject.SetActive(true);
+            DisplayErrorText("BACKUP ALREADY EXISTS");
             throw new Exception("Backup already exists");
         }
 
@@ -43,12 +63,14 @@ public class AdvancedButtons : MonoBehaviour
             {
                 DirectoryCopy(sourceDirectoryPath, targetDirectoryPath, true);
             }
+
+            DisplayFeedbackText("BACKUP CREATED");
         }
     }
 
     public void BrowseGameFiles()
     {
-        Process.Start("explorer.exe", "Beat Saber");
+        Process.Start("explorer.exe", InstalledVersionToggle.BSDirectory);
     }
 
     public void RevertAppdata()
@@ -61,15 +83,15 @@ public class AdvancedButtons : MonoBehaviour
             }
 
             Directory.Move((Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\LocalLow\\Hyperbolic Magnetism\\Beat Saber Backup"), (Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\LocalLow\\Hyperbolic Magnetism\\Beat Saber"));
+
+            DisplayFeedbackText("APPDATA RESTORED FROM BACKUP");
         }
     
 
         else
         {
             CuteErrorObject.SetActive(false);
-            ErrorText.text = "NO BACKUP FOUND";
-            ErrorTextObject.SetActive(false);
-            ErrorTextObject.SetActive(true);
+            DisplayErrorText("NO BACKUP FOUND");
             throw new Exception("No Backup Found");
         }
 
@@ -79,13 +101,13 @@ public class AdvancedButtons : MonoBehaviour
         if (Directory.Exists((Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\LocalLow\\Hyperbolic Magnetism\\Beat Saber Backup")))
         {
             Directory.Delete((Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\LocalLow\\Hyperbolic Magnetism\\Beat Saber"), true);
+
+            DisplayErrorText("APPDATA CLEARED");
         }
         else
         {
             CuteErrorObject.SetActive(false);
-            ErrorText.text = "CREATE A BACKUP FIRST";
-            ErrorTextObject.SetActive(false);
-            ErrorTextObject.SetActive(true);
+            DisplayErrorText("CREATE A BACKUP FIRST");
             throw new Exception("No Backup Found, Cannot clear AppData");
         }
     }
@@ -94,28 +116,78 @@ public class AdvancedButtons : MonoBehaviour
     {
         try
         {
-            DirectoryCopy("Resources\\BSIPA", "Beat Saber", true);
+            DirectoryCopy("Resources\\BSIPA", InstalledVersionToggle.BSDirectory, true);
 
-            
+            ErrorTextObject.SetActive(false);
+            DisplayFeedbackText("LEGACY IPA INSTALLED");
         }
         catch
         {
             CuteErrorObject.SetActive(false);
-            ErrorText.text = "IPA ALREADY INSTALLED";
-            ErrorTextObject.SetActive(false);
-            ErrorTextObject.SetActive(true);
+            DisplayErrorText("IPA ALREADY INSTALLED");
             throw new Exception("IPA is already installed");
         }
 
         {
-            string bspath = Environment.CurrentDirectory + "/Beat Saber";
+            string bspath = InstalledVersionToggle.BSDirectory;
             Process.Start(new ProcessStartInfo
             {
                 WorkingDirectory = bspath,
-                FileName = bspath + "/IPA.exe"
+                FileName = bspath + "IPA.exe"
             });
         }
     }
+
+    [DllImport("shell32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool IsUserAnAdmin();
+
+    public void CreateSymbolicFolder()
+    {
+        // Your turn, ComputerElite
+        // Thanks Risk, headpats
+        if(!IsUserAnAdmin())
+        {
+            DisplayErrorText("REQUIRES ADMIN PERMISSIONS");
+            throw new Exception("REQUIRES ADMIN PERMISSIONS");
+        }
+
+        if (!Directory.Exists(InstalledVersionToggle.CustomSongsDirectory)) Directory.CreateDirectory(InstalledVersionToggle.CustomSongsDirectory);
+        foreach (string d in Directory.GetDirectories(InstalledVersionToggle.BSBaseDir))
+        {
+            string customSongsFolder = d + Path.DirectorySeparatorChar + "CustomSongs";
+            string customLevelsFolder = d + Path.DirectorySeparatorChar + "Beat Saber_Data" + Path.DirectorySeparatorChar + "CustomLevels";
+            string customWIPLevelsFolder = d + Path.DirectorySeparatorChar + "Beat Saber_Data" + Path.DirectorySeparatorChar + "CustomWIPLevels";
+
+            ProcessSymLink(customSongsFolder, InstalledVersionToggle.CustomSongsDirectory);
+            ProcessSymLink(customLevelsFolder, InstalledVersionToggle.CustomLevelsDirectory);
+            ProcessSymLink(customWIPLevelsFolder, InstalledVersionToggle.CustomWIPLevelsDirectory);
+        }
+        DisplayFeedbackText("CUSTOMLEVELS FOLDER CREATED");
+    }
+
+    public static void ProcessSymLink(string path, string target)
+    {
+        if (Directory.Exists(path) && !new DirectoryInfo(path).Attributes.HasFlag(FileAttributes.ReparsePoint))
+            DepotDownloaderObject.MoveDirectory(path, target);
+        if(!Directory.Exists(path))
+            CreateSymLink(path, target);
+    }
+
+    public static void CreateSymLink(string path, string target)
+    {
+        ProcessStartInfo i = new ProcessStartInfo
+        {
+            FileName = "cmd.exe",
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            Arguments = "/c \"mklink /D \"" + path + "\" \"" + target + ('\\') + "\"\""
+        };
+        Process p = Process.Start(i);
+        p.WaitForExit();
+    }
+
     void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
     {
         // Get the subdirectories for the specified directory.

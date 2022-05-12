@@ -8,24 +8,45 @@ public class UninstallCheck : MonoBehaviour
 {
     public GameObject LaunchOptions;
     public GameObject UninstallButton;
-    public Button VersionsButton;
+    public GameObject InstalledVerText;
     public Button GameFilesButton;
     public Button InstallIPAButton;
+    public static UninstallCheck instance;
+    public static bool showLaunchOptions = false;
     public void Start()
     {
-        if (Directory.Exists("Beat Saber"))
+        instance = this;
+    }
+
+    public static void DoUninstallCheck(bool autoShow = false)
+    {
+        showLaunchOptions = false;
+        if (Directory.Exists(InstalledVersionToggle.BSBaseDir))
         {
-            if (File.Exists("BeatSaberVersion.txt"))
+            if (File.Exists(InstalledVersionToggle.BSBaseDir + "BeatSaberVersion.txt"))
             {
-                LaunchOptions.SetActive(true);
-                InstallIPAButton.interactable = true;
+
             }
         }
-        if (File.Exists("Beat Saber\\Beat Saber.exe"))
+        if (File.Exists(InstalledVersionToggle.BSDirectory + "Beat Saber.exe"))
         {
-            VersionsButton.interactable = false;
-            GameFilesButton.interactable = true;
-            UninstallButton.SetActive(true);
+            showLaunchOptions = true;
+            instance.LaunchOptions.SetActive(false);
+            instance.InstalledVerText.SetActive(false);
+            instance.InstallIPAButton.interactable = true;
+            instance.GameFilesButton.interactable = true;
+            instance.UninstallButton.SetActive(true);
+        } else
+        {
+            instance.LaunchOptions.SetActive(false);
+            instance.InstalledVerText.SetActive(false);
         }
+        if(autoShow) ShowLaunchOptions();
+    }
+
+    public static void ShowLaunchOptions()
+    {
+        instance.LaunchOptions.SetActive(showLaunchOptions);
+        instance.InstalledVerText.SetActive(showLaunchOptions);
     }
 }
