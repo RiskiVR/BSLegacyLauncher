@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class Patreon
+public class ComputersVars
 {
-    public string name;
+    public static bool useApertureDeskJob = false;
 }

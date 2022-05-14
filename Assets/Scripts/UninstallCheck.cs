@@ -21,13 +21,6 @@ public class UninstallCheck : MonoBehaviour
     public static void DoUninstallCheck(bool autoShow = false)
     {
         showLaunchOptions = false;
-        if (Directory.Exists(InstalledVersionToggle.BSBaseDir))
-        {
-            if (File.Exists(InstalledVersionToggle.BSBaseDir + "BeatSaberVersion.txt"))
-            {
-
-            }
-        }
         if (File.Exists(InstalledVersionToggle.BSDirectory + "Beat Saber.exe"))
         {
             showLaunchOptions = true;

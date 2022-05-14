@@ -158,10 +158,12 @@ public class AdvancedButtons : MonoBehaviour
             string customSongsFolder = d + Path.DirectorySeparatorChar + "CustomSongs";
             string customLevelsFolder = d + Path.DirectorySeparatorChar + "Beat Saber_Data" + Path.DirectorySeparatorChar + "CustomLevels";
             string customWIPLevelsFolder = d + Path.DirectorySeparatorChar + "Beat Saber_Data" + Path.DirectorySeparatorChar + "CustomWIPLevels";
+            string dLCsFolder = d + Path.DirectorySeparatorChar + "DLC";
 
             ProcessSymLink(customSongsFolder, InstalledVersionToggle.CustomSongsDirectory);
             ProcessSymLink(customLevelsFolder, InstalledVersionToggle.CustomLevelsDirectory);
             ProcessSymLink(customWIPLevelsFolder, InstalledVersionToggle.CustomWIPLevelsDirectory);
+            ProcessSymLink(dLCsFolder, InstalledVersionToggle.DLCDirectory);
         }
         DisplayFeedbackText("CUSTOMLEVELS FOLDER CREATED");
     }

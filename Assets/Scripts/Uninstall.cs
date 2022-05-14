@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,11 +21,13 @@ public class Uninstall : MonoBehaviour
 
     public void UninstallTrigger()
     {
+        /*
         if (!AdvancedButtons.IsUserAnAdmin())
         {
             DisplayErrorText("REQUIRES ADMIN PERMISSIONS");
             throw new Exception("REQUIRES ADMIN PERMISSIONS");
         }
+        */
         try
         {
             if (Directory.Exists(InstalledVersionToggle.BSDirectory + "CustomSabers"))
@@ -36,6 +39,12 @@ public class Uninstall : MonoBehaviour
             if (Directory.Exists(InstalledVersionToggle.BSDirectory + "Plugins"))
                 DepotDownloaderObject.MoveDirectory(InstalledVersionToggle.BSDirectory + "Plugins", $"Backups/Old {InstalledVersionToggle.BSVersion} Plugins");
 
+
+            ProcessSymlinkDelete(InstalledVersionToggle.BSDirectory + Path.DirectorySeparatorChar + "CustomSongs");
+            ProcessSymlinkDelete(InstalledVersionToggle.BSDirectory + Path.DirectorySeparatorChar + "Beat Saber_Data" + Path.DirectorySeparatorChar + "CustomLevels");
+            ProcessSymlinkDelete(InstalledVersionToggle.BSDirectory + Path.DirectorySeparatorChar + "Beat Saber_Data" + Path.DirectorySeparatorChar + "CustomWIPLevels");
+            ProcessSymlinkDelete(InstalledVersionToggle.BSDirectory + Path.DirectorySeparatorChar + "DLC");
+
             Directory.Delete(InstalledVersionToggle.BSDirectory, true);
 
             if (File.Exists(InstalledVersionToggle.BSBaseDir + "BeatSaberVersion.txt"))
@@ -43,14 +52,35 @@ public class Uninstall : MonoBehaviour
                 File.Delete(InstalledVersionToggle.BSBaseDir + "BeatSaberVersion.txt");
             }
         }
-        
+        // Commented out to debug the IO Exception
+        /*
         catch (Exception E)
         {
             DisplayErrorText("PATH IS DENIED OR FOLDER IS EMPTY");
             throw new Exception("UnauthorizedAccessException: Access to the path is denied");
         }
         UninstallCheck.DoUninstallCheck();
+        */
     }
+
+    public void ProcessSymlinkDelete(string path)
+    {
+        if (Directory.Exists(path) && new DirectoryInfo(path).Attributes.HasFlag(FileAttributes.ReparsePoint))
+        {
+            ProcessStartInfo i = new ProcessStartInfo
+            {
+                FileName = "cmd.exe",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                Arguments = "/c \"rmdir \"" + path + "\""
+            };
+            Process p = Process.Start(i);
+            p.WaitForExit();
+        }
+            
+    }
+
     public void ClearVerText()
     {
         InstalledVer.text = "";

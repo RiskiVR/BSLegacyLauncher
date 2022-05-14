@@ -180,6 +180,9 @@ public class DepotDownloaderObject : MonoBehaviour
             case SteamLoginResponse.PATHDENIED:
                 DisplayErrorText("PATH IS DENIED");
                 break;
+            case SteamLoginResponse.NOTAUTHORIZED:
+                DisplayErrorText("NOT AUTHORIZED TO DOWNLOAD DEPOT.\nTHIS ERROR MAY SHOW EVEN IF YOU OWN BEAT SABER");
+                break;
             case SteamLoginResponse.PREALLOCATING:
                 LoginTextAnim.runtimeAnimatorController = TextDismiss;
                 PreAllocatingTextAnim.runtimeAnimatorController = TextEnter;
@@ -251,7 +254,7 @@ public class DepotDownloaderObject : MonoBehaviour
         Log.Error("This user doesn't own the requested repo!");
         request = SteamLoginResponse.BEATSABERNOTOWNED;
         requestLoginPrompt = true;
-        Directory.Delete("Beat Saber", true);
+        Directory.Delete(InstalledVersionToggle.GetBSDirectory(VersionVar.instance.version), true);
     }
 
     private void OnMainThreadDownloadCompleted()
@@ -433,6 +436,12 @@ public class DepotDownloaderObject : MonoBehaviour
             Log.Debug("DEPOTNOTOWNED");
             return;
         }
+        if(line.Contains("404 for depot manifest"))
+        {
+            requestLoginPrompt = true;
+            request = SteamLoginResponse.NOTAUTHORIZED;
+            OnDepotNotOwned();
+        }
         if (line.Contains("Got depot key"))
         {
             // Depot is owned
@@ -495,6 +504,13 @@ public class DepotDownloaderObject : MonoBehaviour
             Log.Debug("Access to the path is denied");
             return;
         }
+        if (line.Contains("401"))
+        {
+            requestLoginPrompt = true;
+            request = SteamLoginResponse.ERROR401;
+            Log.Debug("Error 401 Encountered");
+            return;
+        }
         if (line.Contains("Pre-allocating"))
         {
             request = SteamLoginResponse.PREALLOCATING;
@@ -554,5 +570,6 @@ enum SteamLoginResponse
     NETNOTINSTALLED,
     NOTENOUGHSPACE,
     PREALLOCATING,
-    PATHDENIED
+    PATHDENIED,
+    NOTAUTHORIZED
 }
