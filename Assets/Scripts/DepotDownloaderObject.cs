@@ -175,13 +175,13 @@ public class DepotDownloaderObject : MonoBehaviour
                 break;
             case SteamLoginResponse.NETNOTINSTALLED:
                 request = SteamLoginResponse.NONE;
-                DisplayErrorText("PLEASE INSTALL .NET 6.0.7");
+                DisplayErrorText("PLEASE INSTALL .NET 6.0");
                 break;
             case SteamLoginResponse.PATHDENIED:
                 DisplayErrorText("PATH IS DENIED");
                 break;
-            case SteamLoginResponse.NOTAUTHORIZED:
-                DisplayErrorText("NOT AUTHORIZED TO DOWNLOAD DEPOT.\nTHIS ERROR MAY SHOW EVEN IF YOU OWN BEAT SABER");
+            case SteamLoginResponse.UNAUTHORIZED:
+                DisplayErrorText("UNAUTHORIZED TO DOWNLOAD DEPOT");
                 break;
             case SteamLoginResponse.PREALLOCATING:
                 LoginTextAnim.runtimeAnimatorController = TextDismiss;
@@ -436,11 +436,12 @@ public class DepotDownloaderObject : MonoBehaviour
             Log.Debug("DEPOTNOTOWNED");
             return;
         }
-        if(line.Contains("404 for depot manifest"))
+        if(line.Contains("401 for depot manifest"))
         {
             requestLoginPrompt = true;
-            request = SteamLoginResponse.NOTAUTHORIZED;
-            OnDepotNotOwned();
+            request = SteamLoginResponse.UNAUTHORIZED;
+            Directory.Delete(InstalledVersionToggle.GetBSDirectory(VersionVar.instance.version), true);
+            return;
         }
         if (line.Contains("Got depot key"))
         {
@@ -504,13 +505,6 @@ public class DepotDownloaderObject : MonoBehaviour
             Log.Debug("Access to the path is denied");
             return;
         }
-        if (line.Contains("401"))
-        {
-            requestLoginPrompt = true;
-            request = SteamLoginResponse.ERROR401;
-            Log.Debug("Error 401 Encountered");
-            return;
-        }
         if (line.Contains("Pre-allocating"))
         {
             request = SteamLoginResponse.PREALLOCATING;
@@ -571,5 +565,5 @@ enum SteamLoginResponse
     NOTENOUGHSPACE,
     PREALLOCATING,
     PATHDENIED,
-    NOTAUTHORIZED
+    UNAUTHORIZED
 }

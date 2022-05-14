@@ -21,13 +21,6 @@ public class Uninstall : MonoBehaviour
 
     public void UninstallTrigger()
     {
-        /*
-        if (!AdvancedButtons.IsUserAnAdmin())
-        {
-            DisplayErrorText("REQUIRES ADMIN PERMISSIONS");
-            throw new Exception("REQUIRES ADMIN PERMISSIONS");
-        }
-        */
         try
         {
             if (Directory.Exists(InstalledVersionToggle.BSDirectory + "CustomSabers"))
@@ -52,15 +45,12 @@ public class Uninstall : MonoBehaviour
                 File.Delete(InstalledVersionToggle.BSBaseDir + "BeatSaberVersion.txt");
             }
         }
-        // Commented out to debug the IO Exception
-        /*
         catch (Exception E)
         {
             DisplayErrorText("PATH IS DENIED OR FOLDER IS EMPTY");
             throw new Exception("UnauthorizedAccessException: Access to the path is denied");
         }
         UninstallCheck.DoUninstallCheck();
-        */
     }
 
     public void ProcessSymlinkDelete(string path)
