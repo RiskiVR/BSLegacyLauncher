@@ -35,7 +35,7 @@
     <br />
     <a href="https://github.com/RiskiVR/BSLegacyLauncher/releases/latest/download/BSLegacyLauncher.zip">
       <p align="center">
-      <img src="https://github.com/RiskiVR/BSLegacyLauncher/blob/media/readme/BSLegacyDownload.png" alt="Logo" width="400" height="75">
+      <img src="https://github.com/RiskiVR/BSLegacyLauncher/blob/media/readme/BSLegacyDownload.png" alt="Logo" width="230" height="45">
     <br />
     <a href="https://discord.gg/MrwMx5e">Join our Discord</a>
     ·
@@ -110,8 +110,8 @@ Project Link: [https://github.com/RiskiVR/BSLegacyLauncher](https://github.com/R
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
 
-* [RiskiVR](https://www.patreon.com/riskivr) - Project Lead/Lead Developer
+* [RiskiVR](https://www.patreon.com/riskivr) - Lead Developer, Project Lead & Founder
+* [ComputerElite](https://computerelite.github.io/) - Co-Developer
 * [MintLily](https://mintlily.lgbt/) - Development Help
 * [DDAkebono](https://potato.moe) - Development Help
-* [ComputerElite](https://computerelite.github.io/) - Development Help
 * [M.O.O.N](https://www.youtube.com/channel/UC6pqxF0s6FSu6oVm-70lzqQ) - Shader Help
