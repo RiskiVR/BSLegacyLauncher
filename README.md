@@ -35,7 +35,7 @@
     <br />
     <a href="https://github.com/RiskiVR/BSLegacyLauncher/releases/latest/download/BSLegacyLauncher.zip">
       <p align="center">
-      <img src="https://github.com/RiskiVR/BSLegacyLauncher/blob/media/readme/BSLegacyDownload.png" alt="Logo" width="230" height="45">
+      <img src="https://github.com/RiskiVR/BSLegacyLauncher/blob/media/readme/BSLegacyDownload.png" alt="Logo" width="300" height="60">
     <br />
     <a href="https://discord.gg/MrwMx5e">Join our Discord</a>
     ·
