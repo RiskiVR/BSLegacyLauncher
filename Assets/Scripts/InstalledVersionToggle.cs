@@ -15,6 +15,10 @@ public class InstalledVersionToggle : MonoBehaviour
     public static string CustomSongsDirectory = Environment.CurrentDirectory + Path.DirectorySeparatorChar + "CustomSongs";
     public static string CustomWIPLevelsDirectory = Environment.CurrentDirectory + Path.DirectorySeparatorChar + "CustomWIPLevels";
     public static string DLCDirectory = Environment.CurrentDirectory + Path.DirectorySeparatorChar + "DLC";
+    public static string CustomNotesDirectory = Environment.CurrentDirectory + Path.DirectorySeparatorChar + "CustomNotes";
+    public static string CustomPlatformsDirectory = Environment.CurrentDirectory + Path.DirectorySeparatorChar + "CustomPlatforms";
+    public static string CustomWallsDirectory = Environment.CurrentDirectory + Path.DirectorySeparatorChar + "CustomWalls";
+    public static string CustomSabersDirectory = Environment.CurrentDirectory + Path.DirectorySeparatorChar + "CustomSabers";
     public static string BSVersion = "1.0.0";
     public static Toggle toggle;
     public static bool BSInstalledAndSelected { get

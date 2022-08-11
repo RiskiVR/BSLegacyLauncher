@@ -160,6 +160,29 @@ public class AdvancedButtons : MonoBehaviour
             string customWIPLevelsFolder = d + Path.DirectorySeparatorChar + "Beat Saber_Data" + Path.DirectorySeparatorChar + "CustomWIPLevels";
             string dLCsFolder = d + Path.DirectorySeparatorChar + "DLC";
 
+            string pluginsFolder = d + "Plugins";
+            if (Directory.Exists(pluginsFolder)) {
+                if (File.Exists(pluginsFolder + Path.DirectorySeparatorChar + "CustomNotes.dll")) {
+                    string customNotesFolder = d + Path.DirectorySeparatorChar + "CustomNotes";
+                    ProcessSymLink(customNotesFolder, InstalledVersionToggle.CustomNotesDirectory)
+                }
+
+                if (File.Exists(pluginsFolder + Path.DirectorySeparatorChar + "CustomPlatforms.dll")) {
+                    string customNotesFolder = d + Path.DirectorySeparatorChar + "CustomPlatforms";
+                    ProcessSymLink(customNotesFolder, InstalledVersionToggle.CustomPlatformsDirectory)
+                }
+
+                if (File.Exists(pluginsFolder + Path.DirectorySeparatorChar + "CustomWalls.dll")) {
+                    string customNotesFolder = d + Path.DirectorySeparatorChar + "CustomWalls";
+                    ProcessSymLink(customNotesFolder, InstalledVersionToggle.CustomWallsDirectory)
+                }
+
+                if (File.Exists(pluginsFolder + Path.DirectorySeparatorChar + "SaberTailor.dll")) {
+                    string customNotesFolder = d + Path.DirectorySeparatorChar + "CustomSabers";
+                    ProcessSymLink(customNotesFolder, InstalledVersionToggle.CustomSabersDirectory)
+                }
+            }
+
             ProcessSymLink(customSongsFolder, InstalledVersionToggle.CustomSongsDirectory);
             ProcessSymLink(customLevelsFolder, InstalledVersionToggle.CustomLevelsDirectory);
             ProcessSymLink(customWIPLevelsFolder, InstalledVersionToggle.CustomWIPLevelsDirectory);
