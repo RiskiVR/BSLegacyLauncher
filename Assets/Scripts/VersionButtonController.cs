@@ -55,6 +55,8 @@ public class VersionButtonController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        installedVersions = InstalledVersionToggle.GetInstalledVersions();
+
         PublicVersions = Versions;
         PublicYears = Years;
         PublicBar = Bar;
@@ -63,6 +65,7 @@ public class VersionButtonController : MonoBehaviour
         _PublicClickSound = _ClickSound;
         PublicDownloadButton = DownloadButton;
         PublicReleaseInfoButton = ReleaseInfoButton;
+
         // Don't forget to add back
         try
         {
@@ -199,7 +202,6 @@ public class VersionButtonController : MonoBehaviour
                 
                 button.GetComponentInChildren<Button>().onClick.AddListener(() =>
                 {
-                    installedVersions = InstalledVersionToggle.GetInstalledVersions();
                     if (InstalledVersionToggle.installedVersions) InstalledVersionToggle.SetBSVersion(version);
                     VersionText2.SetActive(true);
                     DownloadButton.SetActive(true);
