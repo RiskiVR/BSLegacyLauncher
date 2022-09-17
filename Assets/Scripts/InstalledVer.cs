@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using ComputerUtils.CommandLine;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -13,6 +15,7 @@ public class InstalledVer : MonoBehaviour
     {
         DiscordController.BSVersion = InstalledVersionToggle.BSVersion;
         publicCurrentVersion = currentVersion;
+
         UpdateText(true);
     }
 
@@ -54,6 +57,22 @@ public class InstalledVer : MonoBehaviour
         } else DiscordController.Installed = "No version installed";
         
         InstalledVersionToggle.SetBSVersion(version, true);
+        InstalledVersionToggle.GetInstalledVersions();
+        CommandLineCommandContainer commands = new CommandLineCommandContainer(Environment.GetCommandLineArgs());
+        LaunchOptions.LoadSettings();
+        if (commands.HasArgument("--version")) // ignores case
+        {
+            Debug.Log(commands.GetValue("--version").Replace("\"", ""));
+            InstalledVersionToggle.SetBSVersion(commands.GetValue("--version").Replace("\"", ""), true); // Replace shouldn't be needed but always good to have a safety net
+            LaunchBS.instace.LaunchBeatSaber();
+            Application.Quit();
+        }
+        if (commands.HasArgument("--launchBS")) // ignores case
+        {
+            LaunchOptions.vars.fpfc = false;
+            LaunchBS.instace.LaunchBeatSaber();
+            Application.Quit();
+        }
         DiscordController.VersionStart();
         UninstallCheck.DoUninstallCheck(first);
     }

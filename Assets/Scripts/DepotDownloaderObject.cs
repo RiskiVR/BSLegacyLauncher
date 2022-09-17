@@ -164,7 +164,6 @@ public class DepotDownloaderObject : MonoBehaviour
                 DisplayErrorText("NOT ENOUGH SPACE ON DISK");
                 break;
             case SteamLoginResponse.EXCEPTION:
-                SetLoginObjects(false);
                 DisplayErrorText("AN UNKNOWN ERROR OCCURED, TRY AGAIN");
                 break;
             case SteamLoginResponse.BEATSABERNOTOWNED:
@@ -218,7 +217,7 @@ public class DepotDownloaderObject : MonoBehaviour
 
     public void LoginPressed()
     {
-        if (!File.Exists("Resources\\DepotDownloader\\DepotDownloader.exe"))
+        if (!File.Exists(InstalledVersionToggle.BaseDirectory + "Resources\\DepotDownloader\\DepotDownloader.exe"))
         {
             DisplayErrorText("DEPOTDOWNLOADER NOT FOUND");
             Log.Info("DepotDownloader doesn't exist in /Resources/");
@@ -231,8 +230,8 @@ public class DepotDownloaderObject : MonoBehaviour
             return;
         }
 
-        if (!Directory.Exists("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds")) Directory.CreateDirectory("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds");
-        File.WriteAllText("Beat Saber Legacy Launcher_Data\\Saved\\steamcreds\\username.txt", $"{Username.text}");
+        if (!Directory.Exists(InstalledVersionToggle.BaseDirectory + "Beat Saber Legacy Launcher_Data\\Saved\\steamcreds")) Directory.CreateDirectory(InstalledVersionToggle.BaseDirectory + "Beat Saber Legacy Launcher_Data\\Saved\\steamcreds");
+        File.WriteAllText(InstalledVersionToggle.BaseDirectory + "Beat Saber Legacy Launcher_Data\\Saved\\steamcreds\\username.txt", $"{Username.text}");
 
         Log.Info("Triggered login");
 
@@ -357,7 +356,7 @@ public class DepotDownloaderObject : MonoBehaviour
         if (Directory.Exists(InstalledVersionToggle.GetBSDirectory(selectedVersion.BSVersion))) Directory.Delete(InstalledVersionToggle.GetBSDirectory(selectedVersion.BSVersion), true);
         ProcessStartInfo ddInfo = new ProcessStartInfo
         {
-            FileName = Environment.CurrentDirectory + "\\Resources\\DepotDownloader\\DepotDownloader.exe",
+            FileName = InstalledVersionToggle.BaseDirectory + "Resources\\DepotDownloader\\DepotDownloader.exe",
             // Don't forget to change depot back to Beat Saber (-depot 620981 -app 620980), Aperture Desk job (-depot 1902492 -app 1902490)
             Arguments = "-username \"" + details.Username + "\" -password \"" + details.Password.Replace("\"", "\\\"") + "\" -manifest " + ulong.Parse(selectedVersion.BSManifest) + " -dir \"" + InstalledVersionToggle.GetBSDirectory(selectedVersion.BSVersion).TrimEnd('\\') + "\" -depot 620981 -app 620980",
             RedirectStandardInput = true,
@@ -400,8 +399,8 @@ public class DepotDownloaderObject : MonoBehaviour
             }
             catch (Exception ex)
             {
-                request = SteamLoginResponse.EXCEPTION;
                 requestLoginPrompt = true;
+                request = SteamLoginResponse.EXCEPTION;
                 Log.Error(ex.ToString());
             }
         });
@@ -416,6 +415,12 @@ public class DepotDownloaderObject : MonoBehaviour
             requestSteamGuardPopUp = true;
         }
         if (line.Contains("LogOn requires a username and password to be set in"))
+        {
+            requestLoginPrompt = true;
+            Log.Debug("Nothing Entered");
+            return;
+        }
+        if (line.Contains("Unset"))
         {
             requestLoginPrompt = true;
             request = SteamLoginResponse.PASSWORDUNSET;

@@ -9,21 +9,38 @@ using UnityEngine.UI;
 public class InstalledVersionToggle : MonoBehaviour
 {
     public static bool installedVersions = false;
-    public static string BSBaseDir = Environment.CurrentDirectory + Path.DirectorySeparatorChar + "Installed Versions" + Path.DirectorySeparatorChar;
-    public static string BSDirectory = Environment.CurrentDirectory + Path.DirectorySeparatorChar + "Beat Saber";
-    public static string CustomLevelsDirectory = Environment.CurrentDirectory + Path.DirectorySeparatorChar + "CustomLevels";
-    public static string CustomSongsDirectory = Environment.CurrentDirectory + Path.DirectorySeparatorChar + "CustomSongs";
-    public static string CustomWIPLevelsDirectory = Environment.CurrentDirectory + Path.DirectorySeparatorChar + "CustomWIPLevels";
-    public static string DLCDirectory = Environment.CurrentDirectory + Path.DirectorySeparatorChar + "DLC";
+    public static string BSBaseDir { get { return BaseDirectory + "Installed Versions" + Path.DirectorySeparatorChar; } }
+    public static string BSDirectory = "";
+    public static string CustomLevelsDirectory { get { return BaseDirectory + "CustomLevels"; } }
+    public static string CustomSongsDirectory { get { return BaseDirectory + "CustomSongs"; } }
+    public static string CustomWIPLevelsDirectory { get { return BaseDirectory + "CustomWIPLevels"; } }
+    public static string DLCDirectory { get { return BaseDirectory + "DLC"; } }
     public static string BSVersion = "1.0.0";
-    public static Toggle toggle;
+    public static string BaseDirectory = "";
+
     public static bool BSInstalledAndSelected { get
         {
             return BSVersion != "";
         } }
 
+    public RuntimeAnimatorController TextEnter;
+    public GameObject SelectVersionsObj;
+    public Animator SelectVersions;
+    public Animator InstalledVersions;
+
+    public void Awake()
+    {
+        SetBaseDir();
+    }
+
+    public static void SetBaseDir()
+    {
+        BaseDirectory = Application.isEditor ? Environment.CurrentDirectory : System.AppDomain.CurrentDomain.BaseDirectory;
+        if (!BaseDirectory.EndsWith(Path.DirectorySeparatorChar.ToString())) BaseDirectory += Path.DirectorySeparatorChar;
+    }
     public static void SetBSVersion(string version, bool updatedText = false)
     {
+        SetBaseDir();
         File.WriteAllText(BSBaseDir + "BeatSaberVersion.txt", version);
         BSVersion = version;
         BSDirectory = GetBSDirectory(version);
@@ -47,25 +64,37 @@ public class InstalledVersionToggle : MonoBehaviour
         {
             installedVersions.Add(Path.GetFileName(s).Replace("Beat Saber ", ""));
         }
+
+        // Optimized now
+        LivConnector.AddAndUpdateAllRegistryEntries(installedVersions);
         return installedVersions;
     }
 
-    // Start is called before the first frame update
-    void Start()
+    public void UpdateList()
     {
-        toggle = GetComponent<Toggle>();
-        toggle.onValueChanged.AddListener(value =>
+        Debug.Log("Updating list");
+        Toggle(Directory.GetDirectories(BSBaseDir).Length > 0);
+
+        if (Directory.GetDirectories(BSBaseDir).Length > 0)
         {
-            Toggle(value);
-        });
+            InstalledVersions.runtimeAnimatorController = TextEnter;
+        }
+        else
+        {
+            SelectVersions.runtimeAnimatorController = TextEnter;
+            SelectVersionsObj.SetActive(true);
+        }
     }
 
-    public static void Toggle(bool value)
+    public void Toggle(bool value)
     {
         List<string> versions = GetInstalledVersions();
+        Debug.Log(versions.Count + " version downloaded");
         int i = 0;
         int ii = 0;
         installedVersions = value;
+        gameObject.SetActive(value);
+        Debug.Log("show downloaded versions: " + value);
         VersionButtonController.PublicYears.SetActive(!value);
         VersionButtonController.PublicReleaseInfoButton.SetActive(false);
         VersionButtonController.PublicDownloadButton.SetActive(false);
@@ -75,7 +104,7 @@ public class InstalledVersionToggle : MonoBehaviour
             VersionButtonController.YearClicked(VersionButtonController.versionTable.Keys.OrderByDescending(x => Convert.ToInt32(x)).ToList()[0], VersionButtonController.versionTable.Keys.Count - 1, VersionButtonController.versionTable.Keys.Count);
             return;
         }
-        VersionButtonController.PublicVersions.GetComponent<RectTransform>().anchoredPosition = new Vector2(VersionButtonController.PublicVersions.GetComponent<RectTransform>().anchoredPosition.x, 40f);
+        VersionButtonController.PublicVersions.GetComponent<RectTransform>().anchoredPosition = new Vector2(VersionButtonController.PublicVersions.GetComponent<RectTransform>().anchoredPosition.x, 20f);
         VersionButtonController.ClearVersions();
         VersionButtonController.PublicVersions.SetActive(true);
         foreach (string version in versions)

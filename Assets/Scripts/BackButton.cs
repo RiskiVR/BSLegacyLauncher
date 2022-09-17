@@ -10,7 +10,6 @@ public class BackButton : MonoBehaviour
     {
         GetComponent<Button>().onClick.AddListener(() =>
         {
-            InstalledVersionToggle.toggle.isOn = false;
             VersionButtonController.PublicVersions.SetActive(false);
             VersionButtonController.PublicPlane.SetActive(false);
             UninstallCheck.ShowLaunchOptions();

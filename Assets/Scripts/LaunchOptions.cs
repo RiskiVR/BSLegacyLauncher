@@ -14,18 +14,23 @@ public class LaunchOptions : MonoBehaviour
     public static LaunchOptionsVars vars = new LaunchOptionsVars();
     const string jsonLocation = "Beat Saber Legacy Launcher_Data/Settings/launchoptions.json";
 
-    // Start is called before the first frame update
-    void Start()
+    public static void LoadSettings()
     {
-        if (!File.Exists(jsonLocation)) Save();
+        if (!File.Exists(InstalledVersionToggle.BaseDirectory + jsonLocation)) Save();
         try
         {
-            vars = JsonConvert.DeserializeObject<LaunchOptionsVars>(File.ReadAllText(jsonLocation));
+            vars = JsonConvert.DeserializeObject<LaunchOptionsVars>(File.ReadAllText(InstalledVersionToggle.BaseDirectory + jsonLocation));
         }
         catch
         {
             Save();
         }
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        LoadSettings();
         oculusToggle.isOn = vars.oculus;
         oculusToggle.onValueChanged.AddListener(value =>
         {
@@ -46,10 +51,10 @@ public class LaunchOptions : MonoBehaviour
         });
     }
 
-    public void Save()
+    public static void Save()
     {
-        if (!Directory.Exists(Path.GetDirectoryName(jsonLocation))) Directory.CreateDirectory(Path.GetDirectoryName(jsonLocation));
-        File.WriteAllText(jsonLocation, JsonConvert.SerializeObject(vars));
+        if (!Directory.Exists(Path.GetDirectoryName(InstalledVersionToggle.BaseDirectory + jsonLocation))) Directory.CreateDirectory(Path.GetDirectoryName(InstalledVersionToggle.BaseDirectory + jsonLocation));
+        File.WriteAllText(InstalledVersionToggle.BaseDirectory + jsonLocation, JsonConvert.SerializeObject(vars));
     }
 
     // Update is called once per frame

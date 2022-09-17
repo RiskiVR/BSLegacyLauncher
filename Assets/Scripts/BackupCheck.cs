@@ -14,9 +14,9 @@ namespace CheckBackup
         {
             check.SetActive(false);
             if (!Directory.Exists(InstalledVersionToggle.BSDirectory)) return;
-            if (Directory.Exists($"Backups/Beat Saber {InstalledVersionToggle.BSVersion}/CustomSabers"))
+            if (Directory.Exists(InstalledVersionToggle.BaseDirectory + $"Backups/Beat Saber {InstalledVersionToggle.BSVersion}/CustomSabers"))
                 check.SetActive(true);
-            if (Directory.Exists($"Backups/Beat Saber {InstalledVersionToggle.BSVersion}/UserData"))
+            if (Directory.Exists(InstalledVersionToggle.BaseDirectory + $"Backups/Beat Saber {InstalledVersionToggle.BSVersion}/UserData"))
                 check.SetActive(true);
         }
         void Start()

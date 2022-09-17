@@ -50,6 +50,7 @@ public class VersionButtonController : MonoBehaviour
     // Just ignore that variable name. I scambled the sorting Riski made and didn't bother to rename the vars
     public static List<int> minors = new List<int>();
 
+    List<string> installedVersions = new List<string>();
 
     // Start is called before the first frame update
     void Start()
@@ -68,19 +69,19 @@ public class VersionButtonController : MonoBehaviour
             // Update cache
             WebClient c = new WebClient();
             string d = c.DownloadString("https://raw.githubusercontent.com/RiskiVR/BSLegacyLauncher/master/Resources/BSVersions.json");
-            File.WriteAllText("Resources/BSVersions.json", d);
+            File.WriteAllText(InstalledVersionToggle.BaseDirectory + "Resources/BSVersions.json", d);
             d = c.DownloadString("https://raw.githubusercontent.com/RiskiVR/BSLegacyLauncher/master/Resources/Patreons.json");
-            File.WriteAllText("Resources/Patreons.json", d);
+            File.WriteAllText(InstalledVersionToggle.BaseDirectory + "Resources/Patreons.json", d);
         } catch { }
 
-        string versionList = File.ReadAllText("Resources/BSVersions.json");
+        string versionList = File.ReadAllText(InstalledVersionToggle.BaseDirectory + "Resources/BSVersions.json");
         versions = JsonConvert.DeserializeObject<List<Version>>(versionList);
 
         // Aperture
         if(ComputersVars.useApertureDeskJob) versions.Add(new Version { BSManifest = "152863936826529847", BSVersion = "Aperture", year = "2022", row = 3 });
 
 
-        string patreonsList = File.ReadAllText("Resources/Patreons.json");
+        string patreonsList = File.ReadAllText(InstalledVersionToggle.BaseDirectory + "Resources/Patreons.json");
         List<Patreon> patreons = JsonConvert.DeserializeObject<List<Patreon>>(patreonsList);
         // Order by alphabet
         patreons = patreons.OrderBy(x => x.name).ToList();
@@ -187,7 +188,7 @@ public class VersionButtonController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(minors.Count > 0 && Time.time - 0.2 > lastButtonSpawn)
+        if (minors.Count > 0 && Time.time - 0.2 > lastButtonSpawn)
         {
             if(toDo.ContainsKey(minors[0]) && toDo[minors[0]].Count > 0)
             {
@@ -198,7 +199,8 @@ public class VersionButtonController : MonoBehaviour
                 
                 button.GetComponentInChildren<Button>().onClick.AddListener(() =>
                 {
-                    if(InstalledVersionToggle.installedVersions) InstalledVersionToggle.SetBSVersion(version);
+                    installedVersions = InstalledVersionToggle.GetInstalledVersions();
+                    if (InstalledVersionToggle.installedVersions) InstalledVersionToggle.SetBSVersion(version);
                     VersionText2.SetActive(true);
                     DownloadButton.SetActive(true);
                     DownloadButton.GetComponent<Button>().interactable = !InstalledVersionToggle.installedVersions;
@@ -212,7 +214,7 @@ public class VersionButtonController : MonoBehaviour
                         
                     _ClickSound.GetComponent<AudioSource>().Play();
                 });
-                if (InstalledVersionToggle.GetInstalledVersions().Contains(version) && !InstalledVersionToggle.installedVersions)
+                if (installedVersions.Contains(version) && !InstalledVersionToggle.installedVersions)
                 {
                     button.GetComponentInChildren<Button>().interactable = false;
                 }

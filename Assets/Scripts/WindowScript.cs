@@ -9,7 +9,7 @@ public class WindowScript : MonoBehaviour
     private Vector2 _deltaValue = Vector2.zero;
     private bool _maximized;
 
-    void Start()
+    void Awake()
     {
         if (!Application.isEditor)
         {

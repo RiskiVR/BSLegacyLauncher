@@ -1,21 +1,30 @@
 ﻿using UnityEngine;
 using System.Net;
 using System.Text;
+using System.Diagnostics;
+using UnityEngine.UI;
 
 public class UpdateCheck : MonoBehaviour
 {
     public GameObject UpdateCheckObject;
-    static string version = "1.5.2";
+    public Button UpdateButton;
+    public Text ErrorText;
+    public GameObject ErrorTextObject;
+
+    public static string version = "1.6.0";
+
     string lazyTag = "\"tag_name\": \"v" + version + "\"";
     string incomingData = string.Empty;
     string GitHub = "https://api.github.com/repos/RiskiVR/BSLegacyLauncher/releases";
 
-    // Awake is called before Start
-    //void Awake() => getLatestVersion();
-
-    // Start is called before the first frame update
     void Start()
     {
+        if (Application.isEditor)
+        {
+            UpdateButton.interactable = false;
+        }
+
+        // Get latest tag
         GetComponent<TextMesh>().text = "v" + version;
         WebClient web = new WebClient();
         web.Headers["Content-Type"] = "application/json";
@@ -24,11 +33,29 @@ public class UpdateCheck : MonoBehaviour
         incomingData = web.DownloadString(GitHub);
 
         if (incomingData.Contains(lazyTag))
-            Debug.Log("Versions are matching");
+            UnityEngine.Debug.Log("Versions are matching");
         else
         {
-            Debug.Log("GitHub version is different than internal version.");
+            UnityEngine.Debug.Log("GitHub version is different than internal version.");
             UpdateCheckObject.SetActive(true);
+        }
+    }
+    private void DisplayErrorText(string text)
+    {
+        // Set to false to restart popup animation DON'T CHANGE
+        ErrorTextObject.SetActive(false);
+        ErrorTextObject.SetActive(true);
+        ErrorText.text = text;
+    }
+    public void RunUpdater()
+    {
+        try
+        {
+            Process.Start("Resources\\BSLLUpdater.exe");
+        }
+        catch
+        {
+            DisplayErrorText("UNABLE TO RUN UPDATER");
         }
     }
 }

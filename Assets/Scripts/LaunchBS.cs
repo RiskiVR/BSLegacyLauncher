@@ -12,6 +12,19 @@ public class LaunchBS : MonoBehaviour
     [Header("Error Text Objects")]
     public GameObject ErrorTextObject;
     public Text ErrorText;
+    public static LaunchBS instace;
+    void Awake()
+    {
+        instace = GetComponent<LaunchBS>();
+    }
+
+    private void DisplayErrorText(string text)
+    {
+        // Set to false to restart popup animation DON'T CHANGE
+        ErrorTextObject.SetActive(false);
+        ErrorTextObject.SetActive(true);
+        ErrorText.text = text;
+    }
 
     private void Delayfunc(float delay, Action action)
     {
@@ -28,10 +41,12 @@ public class LaunchBS : MonoBehaviour
     {
         var process = new Process()
         {
-            StartInfo = new ProcessStartInfo($"{InstalledVersionToggle.BSDirectory}Beat Saber.exe", (LaunchOptions.vars.oculus ? "-vrmode oculus " : "") + (LaunchOptions.vars.verbose ? "--verbose " : "") + (LaunchOptions.vars.fpfc ? "fpfc " : ""))
+            StartInfo = new ProcessStartInfo
             {
+                FileName = InstalledVersionToggle.BSDirectory + "Beat Saber.exe",
+                Arguments = (LaunchOptions.vars.oculus ? "-vrmode oculus " : "") + (LaunchOptions.vars.verbose ? "--verbose " : "") + (LaunchOptions.vars.fpfc ? "fpfc " : ""),
                 UseShellExecute = false,
-                WorkingDirectory = InstalledVersionToggle.BSDirectory
+                WorkingDirectory = InstalledVersionToggle.BSDirectory,
             }
         };
 
@@ -42,6 +57,21 @@ public class LaunchBS : MonoBehaviour
                 process.StartInfo.Environment["SteamAppId"] = "620980";
                 process.Start();
 
+                if (LaunchOptions.vars.fpfc)
+                {
+                    try
+                    {
+                        File.Move("C:\\Program Files (x86)\\Steam\\steamapps\\common\\SteamVR", "C:\\Program Files (x86)\\Steam\\steamapps\\common\\SteamVR.bak");
+                        Delayfunc(3, delegate { File.Move("C:\\Program Files (x86)\\Steam\\steamapps\\common\\SteamVR.bak", "C:\\Program Files (x86)\\Steam\\steamapps\\common\\SteamVR"); });
+                    }
+                    catch
+                    {
+                        DisplayErrorText("FAILED TO STOP STEAMVR");
+                    }
+                }
+
+                
+
                 if (LaunchOptions.vars.verbose)
                 {
                     throw new Exception();
@@ -49,6 +79,7 @@ public class LaunchBS : MonoBehaviour
             }
             catch (Exception E)
             {
+                UnityEngine.Debug.LogError(E.ToString());
                 if (LaunchOptions.vars.verbose)
                 {
                     LaunchButton.interactable = false;

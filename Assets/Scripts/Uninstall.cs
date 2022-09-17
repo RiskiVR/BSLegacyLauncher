@@ -23,20 +23,16 @@ public class Uninstall : MonoBehaviour
     {
         try
         {
-            if (Directory.Exists(InstalledVersionToggle.BSDirectory + "CustomSabers"))
-                DepotDownloaderObject.MoveDirectory(InstalledVersionToggle.BSDirectory + "CustomSabers", $"Backups/Beat Saber {InstalledVersionToggle.BSVersion}/CustomSabers");
+            AdvancedButtons.locations = SymLinkLocations.LoadFile(AdvancedButtons.jsonLocation);
+            foreach (string folder in AdvancedButtons.locations.folders)
+            {
+                ProcessSymlinkDelete(InstalledVersionToggle.BSDirectory + folder);
+            }
 
-            if (Directory.Exists(InstalledVersionToggle.BSDirectory + "UserData"))
-                DepotDownloaderObject.MoveDirectory(InstalledVersionToggle.BSDirectory + "UserData", $"Backups/Beat Saber {InstalledVersionToggle.BSVersion}/UserData");
-
-            if (Directory.Exists(InstalledVersionToggle.BSDirectory + "Plugins"))
-                DepotDownloaderObject.MoveDirectory(InstalledVersionToggle.BSDirectory + "Plugins", $"Backups/Old {InstalledVersionToggle.BSVersion} Plugins");
-
-
-            ProcessSymlinkDelete(InstalledVersionToggle.BSDirectory + Path.DirectorySeparatorChar + "CustomSongs");
-            ProcessSymlinkDelete(InstalledVersionToggle.BSDirectory + Path.DirectorySeparatorChar + "Beat Saber_Data" + Path.DirectorySeparatorChar + "CustomLevels");
-            ProcessSymlinkDelete(InstalledVersionToggle.BSDirectory + Path.DirectorySeparatorChar + "Beat Saber_Data" + Path.DirectorySeparatorChar + "CustomWIPLevels");
-            ProcessSymlinkDelete(InstalledVersionToggle.BSDirectory + Path.DirectorySeparatorChar + "DLC");
+            ProcessSymlinkDelete(InstalledVersionToggle.BSDirectory + "CustomSongs");
+            ProcessSymlinkDelete(InstalledVersionToggle.BSDirectory + "Beat Saber_Data" + Path.DirectorySeparatorChar + "CustomLevels");
+            ProcessSymlinkDelete(InstalledVersionToggle.BSDirectory + "Beat Saber_Data" + Path.DirectorySeparatorChar + "CustomWIPLevels");
+            ProcessSymlinkDelete(InstalledVersionToggle.BSDirectory + "DLC");
 
             Directory.Delete(InstalledVersionToggle.BSDirectory, true);
 
@@ -47,9 +43,10 @@ public class Uninstall : MonoBehaviour
         }
         catch (Exception E)
         {
-            DisplayErrorText("PATH IS DENIED OR FOLDER IS EMPTY");
-            throw new Exception("UnauthorizedAccessException: Access to the path is denied");
+            DisplayErrorText($"{E.GetType().Name.ToUpper()}: {E.Message.ToUpper()}");
+            throw E;
         }
+        
         UninstallCheck.DoUninstallCheck();
     }
 
@@ -63,12 +60,12 @@ public class Uninstall : MonoBehaviour
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
-                Arguments = "/c \"rmdir \"" + path + "\""
+                Arguments = $"/c rd /q \"{path}\\\""
             };
             Process p = Process.Start(i);
             p.WaitForExit();
+            p.Dispose();
         }
-            
     }
 
     public void ClearVerText()

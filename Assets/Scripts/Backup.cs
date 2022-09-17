@@ -5,16 +5,8 @@ using System.IO;
 
 public class Backup : MonoBehaviour
 {
-    // FUCK FUCK
     public void StartBackup()
     {
-        // Delete existing directories if present
-        if (Directory.Exists("Beat Saber/CustomSabers"))
-            Directory.Delete("Beat Saber/CustomSabers", true);
-
-        if (Directory.Exists("Beat Saber/UserData"))
-            Directory.Delete("Beat Saber/UserData", true);
-
         // Begin restore process
         if (Directory.Exists($"Backups/Beat Saber {InstalledVersionToggle.BSVersion}/CustomSabers"))
             Directory.Move($"Backups/Beat Saber {InstalledVersionToggle.BSVersion}/CustomSabers", InstalledVersionToggle.BSDirectory + "CustomSabers");
