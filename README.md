@@ -76,6 +76,13 @@ Ever wanted or needed to have the ability to switch between any versions? Then t
 <br/>You can even create a Master CustomLevels folder linked across all versions!
 <br/>Your current Steam install will remain untouched!
 
+<!-- SUPPORTED ARGUEMENTS -->
+## Supported Arguements
+
+`--LaunchBS` - Runs Beat Saber on Launch
+`--version <input>` - Sets the active Beat Saber version (Recommended to use with `--LaunchBS`)
+`--pixel` - ???
+
 
 ### Built With
 
