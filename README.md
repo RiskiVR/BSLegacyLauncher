@@ -76,14 +76,6 @@ Ever wanted or needed to have the ability to switch between any versions? Then t
 <br/>You can even create a Master CustomLevels folder linked across all versions!
 <br/>Your current Steam install will remain untouched!
 
-<!-- SUPPORTED ARGUEMENTS -->
-## Supported Arguements
-
-`--LaunchBS` - Runs Beat Saber on Launch
-`--version <input>` - Sets the active Beat Saber version (Recommended to use with `--LaunchBS`)
-`--pixel` - ???
-
-
 ### Built With
 
 * [Unity](https://unity.com/)
@@ -97,6 +89,13 @@ Ever wanted or needed to have the ability to switch between any versions? Then t
  - From there follow the buttons and prompts to select the target version, and log into your steam account!
  - *To launch your Launcher install via Steam, add a Steam shortcut to `Beat Saber Legacy Launcher.exe` 
   </br> then add `--LaunchBS` to Launch Options*
+  
+  <!-- SUPPORTED ARGUEMENTS -->
+## Supported Arguements
+
+`--LaunchBS` - Runs Beat Saber on Launch
+<br/>`--version <input>` - Sets the active Beat Saber version (Recommended to use with `--LaunchBS`)
+<br/>`--pixel` - ???
 
 
 <!-- ROADMAP -->
