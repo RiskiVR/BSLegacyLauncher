@@ -439,5 +439,12 @@
       "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/3312985013538143172",
       "year": "2022",
       "row": 3
+   },
+   {
+      "BSVersion":"1.25.1",
+      "BSManifest":"7372469314660649150",
+      "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/5346361068670142187",
+      "year": "2022",
+      "row": 3
    }
 ]
