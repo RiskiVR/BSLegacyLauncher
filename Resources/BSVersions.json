@@ -460,5 +460,12 @@
       "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/3629368753553708497",
       "year": "2022",
       "row": 4
+   },
+   {
+      "BSVersion":"NONE",
+      "BSManifest":"NULL",
+      "ReleaseURL":"NULL",
+      "year": "2023",
+      "row": 1
    }
 ]
