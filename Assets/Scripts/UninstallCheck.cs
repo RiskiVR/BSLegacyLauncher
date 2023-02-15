@@ -13,7 +13,6 @@ public class UninstallCheck : MonoBehaviour
     public Button InstallIPAButton;
     public Button InstallNewIPAButton;
     public Button SharedFoldersButton;
-    public Button InstallModsButton;
     public Button PixelModpackButton;
     public Button RelinkButton;
     public static UninstallCheck instance;
@@ -36,7 +35,6 @@ public class UninstallCheck : MonoBehaviour
             instance.GameFilesButton.interactable = true;
             instance.UninstallButton.SetActive(true);
             instance.SharedFoldersButton.interactable = true;
-            instance.InstallModsButton.interactable = true;
             instance.PixelModpackButton.interactable = true;
             instance.RelinkButton.interactable = true;
         } else

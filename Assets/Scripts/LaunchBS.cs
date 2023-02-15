@@ -44,7 +44,7 @@ public class LaunchBS : MonoBehaviour
             StartInfo = new ProcessStartInfo
             {
                 FileName = InstalledVersionToggle.BSDirectory + "Beat Saber.exe",
-                Arguments = (LaunchOptions.vars.oculus ? "-vrmode oculus " : "") + (LaunchOptions.vars.verbose ? "--verbose " : "") + (LaunchOptions.vars.fpfc ? "fpfc " : ""),
+                Arguments = "--no-yeet " + (LaunchOptions.vars.oculus ? "-vrmode oculus " : "") + (LaunchOptions.vars.verbose ? "--verbose " : "") + (LaunchOptions.vars.fpfc ? "fpfc " : ""),
                 UseShellExecute = false,
                 WorkingDirectory = InstalledVersionToggle.BSDirectory,
             }
@@ -69,8 +69,6 @@ public class LaunchBS : MonoBehaviour
                         DisplayErrorText("FAILED TO STOP STEAMVR");
                     }
                 }
-
-                
 
                 if (LaunchOptions.vars.verbose)
                 {

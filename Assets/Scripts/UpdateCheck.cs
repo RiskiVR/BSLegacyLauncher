@@ -11,19 +11,19 @@ public class UpdateCheck : MonoBehaviour
     public Text ErrorText;
     public GameObject ErrorTextObject;
 
-    public static string version = "1.6.0";
+    public static string version;
 
-    string lazyTag = "\"tag_name\": \"v" + version + "\"";
     string incomingData = string.Empty;
+    string lazyTag;
     string GitHub = "https://api.github.com/repos/RiskiVR/BSLegacyLauncher/releases";
 
     void Start()
     {
         if (Application.isEditor)
-        {
             UpdateButton.interactable = false;
-        }
 
+        version = Application.version;
+        lazyTag = "\"tag_name\": \"v" + version + "\"";
         // Get latest tag
         GetComponent<TextMesh>().text = "v" + version;
         WebClient web = new WebClient();

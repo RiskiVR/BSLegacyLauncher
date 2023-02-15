@@ -75,6 +75,8 @@ public class InstalledVersionToggle : MonoBehaviour
         Debug.Log("Updating list");
         Toggle(Directory.GetDirectories(BSBaseDir).Length > 0);
 
+        VersionButtonController.GetInstalledVersions();
+
         if (Directory.GetDirectories(BSBaseDir).Length > 0)
         {
             InstalledVersions.runtimeAnimatorController = TextEnter;
@@ -101,7 +103,7 @@ public class InstalledVersionToggle : MonoBehaviour
         if (!value)
         {
             VersionButtonController.PublicVersions.GetComponent<RectTransform>().anchoredPosition = new Vector2(VersionButtonController.PublicVersions.GetComponent<RectTransform>().anchoredPosition.x, -8.5f);
-            VersionButtonController.YearClicked(VersionButtonController.versionTable.Keys.OrderByDescending(x => Convert.ToInt32(x)).ToList()[0], VersionButtonController.versionTable.Keys.Count - 1, VersionButtonController.versionTable.Keys.Count);
+            VersionButtonController.YearClicked(VersionButtonController.versionTable.Keys.OrderBy(x => Convert.ToInt32(x)).ToList()[0], 0, VersionButtonController.versionTable.Keys.Count);
             return;
         }
         VersionButtonController.PublicVersions.GetComponent<RectTransform>().anchoredPosition = new Vector2(VersionButtonController.PublicVersions.GetComponent<RectTransform>().anchoredPosition.x, 20f);

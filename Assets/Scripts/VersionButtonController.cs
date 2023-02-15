@@ -50,7 +50,7 @@ public class VersionButtonController : MonoBehaviour
     // Just ignore that variable name. I scambled the sorting Riski made and didn't bother to rename the vars
     public static List<int> minors = new List<int>();
 
-    List<string> installedVersions = new List<string>();
+    static List<string> installedVersions = new List<string>();
 
     // Start is called before the first frame update
     void Start()
@@ -67,6 +67,8 @@ public class VersionButtonController : MonoBehaviour
         PublicReleaseInfoButton = ReleaseInfoButton;
 
         // Don't forget to add back
+        
+        /*
         try
         {
             // Update cache
@@ -76,14 +78,14 @@ public class VersionButtonController : MonoBehaviour
             d = c.DownloadString("https://raw.githubusercontent.com/RiskiVR/BSLegacyLauncher/master/Resources/Patreons.json");
             File.WriteAllText(InstalledVersionToggle.BaseDirectory + "Resources/Patreons.json", d);
         } catch { }
-
+        */
         string versionList = File.ReadAllText(InstalledVersionToggle.BaseDirectory + "Resources/BSVersions.json");
         versions = JsonConvert.DeserializeObject<List<Version>>(versionList);
 
         // Aperture
         if(ComputersVars.useApertureDeskJob) versions.Add(new Version { BSManifest = "152863936826529847", BSVersion = "Aperture", year = "2022", row = 3 });
 
-
+        
         string patreonsList = File.ReadAllText(InstalledVersionToggle.BaseDirectory + "Resources/Patreons.json");
         List<Patreon> patreons = JsonConvert.DeserializeObject<List<Patreon>>(patreonsList);
         // Order by alphabet
@@ -96,7 +98,10 @@ public class VersionButtonController : MonoBehaviour
         }
         GenerateDict();
     }
-
+    public static void GetInstalledVersions()
+    {
+        installedVersions = InstalledVersionToggle.GetInstalledVersions();
+    }
     public static void ClearVersions()
     {
         currentColumn = 0;

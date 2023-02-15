@@ -48,6 +48,11 @@ public class DepotDownloaderObject : MonoBehaviour
     public Button LocalGameFilesButton;
     public Button InstallIPAButton;
     public GameObject InvalidPasswordTips;
+    
+    [Header("Audio Sources")]
+    public AudioSource DownloadSound;
+    public AudioSource ErrorSound;
+    public AudioSource StartSound;
 
     [Header("Animators")]
     public RuntimeAnimatorController TextDismiss;
@@ -213,6 +218,7 @@ public class DepotDownloaderObject : MonoBehaviour
         ErrorTextObject.SetActive(false);
         ErrorTextObject.SetActive(true);
         ErrorText.text = error;
+        ErrorSound.Play();
     }
 
     public void LoginPressed()
@@ -277,6 +283,7 @@ public class DepotDownloaderObject : MonoBehaviour
         DiscordController.DownloadProgress = "Download Finished";
         DiscordController.DownloadUpdate();
         Destroy(LoadingActiveInstance);
+        DownloadSound.Play();
     }
 
     private void OnProgressUpdate(string current, float percentage)
@@ -348,6 +355,7 @@ public class DepotDownloaderObject : MonoBehaviour
 
     public void StartDownload()
     {
+        StartSound.Play();
         ErrorTextObject.SetActive(false);
         Version selectedVersion = VersionButtonController.versions.First(x => x.BSVersion.Equals(VersionVar.instance.version));
         Log.Info($"You selected version {selectedVersion.BSVersion} : {selectedVersion.BSManifest}");
@@ -393,7 +401,7 @@ public class DepotDownloaderObject : MonoBehaviour
                 if (lines <= 0)
                 {
                     request = SteamLoginResponse.NETNOTINSTALLED;
-                    Process.Start("https://link.bslegacy.com/dotNET_6-0-3");
+                    Process.Start("https://link.bslegacy.com/dotnet6");
                     requestLoginPrompt = true;
                 }
             }

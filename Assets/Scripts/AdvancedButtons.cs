@@ -11,9 +11,13 @@ using System.Security.Principal;
 using System.Runtime.InteropServices;
 using Yggdrasil.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Linq;
 using System.Net;
 using System.IO.Compression;
+using System.Net.Http;
+using SteamKit2.Internal;
+using Debug = UnityEngine.Debug;
 
 [Serializable]
 public class SymLinkLocations
@@ -40,15 +44,26 @@ public class SymLinkLocations
 }
     public class AdvancedButtons : MonoBehaviour
 {
+    [Header("Text")]
     public Text ErrorText;
     public Text FeedbackText;
     public Text InfoText;
+    
+    [Header("Text Objects")]
     public GameObject ErrorTextObject;
-    public GameObject CuteErrorObject;
     public GameObject FeedbackTextObject;
     public GameObject InfoTextObject;
     public GameObject InstallingTextObject;
+    
+    [Header("Button Objects")]
+    public GameObject IPA4Button;
+    public GameObject IPA3Button;
+    public GameObject UninstallIPAButton;
+    
+    [Header("Buttons")]
     public Button RelinkFoldersButton;
+    
+    [Header("Toggles & Fields")]
     public Toggle CustomLevelsToggle;
     public Toggle CustomWIPLevelsToggle;
     public Toggle CustomSongsToggle;
@@ -56,6 +71,10 @@ public class SymLinkLocations
     public Toggle OtherToggle;
     public InputField OtherField;
 
+    [Header("Audio & Others")] 
+    public AudioSource ErrorSound;
+    public AudioSource FeedbackSound;
+    
     public const string jsonLocation = "Beat Saber Legacy Launcher_Data/Settings/LinkedFolders.json";
     public string settingsLocation = "Beat Saber Legacy Launcher_Data/Settings";
     public static SymLinkLocations locations = new SymLinkLocations();
@@ -80,20 +99,20 @@ public class SymLinkLocations
     private void DisplayErrorText(string text)
     {
         // Set to false to restart popup animation DON'T CHANGE
-        CuteErrorObject.SetActive(false);
         FeedbackTextObject.SetActive(false);
         ErrorTextObject.SetActive(false);
         ErrorTextObject.SetActive(true);
         ErrorText.text = text;
+        ErrorSound.Play();
     }
     private void DisplayFeedbackText(string text)
     {
         // Set to false to restart popup animation DON'T CHANGE
-        CuteErrorObject.SetActive(false);
         ErrorTextObject.SetActive(false);
         FeedbackTextObject.SetActive(false);
         FeedbackTextObject.SetActive(true);
         FeedbackText.text = text;
+        FeedbackSound.Play();
     }
     private void DisplayInfoText(string text)
     {
@@ -171,6 +190,7 @@ public class SymLinkLocations
     {
         Process.Start(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) + "\\AppData\\LocalLow\\Hyperbolic Magnetism");
     }
+
     
     void Start()
     {
@@ -195,11 +215,9 @@ public class SymLinkLocations
 
         if (Directory.Exists(targetDirectoryPath))
         {
-            CuteErrorObject.SetActive(false);
             DisplayErrorText("BACKUP ON THAT DATE ALREADY EXISTS");
             throw new Exception("Backup on that date already exists");
         }
-
         else
         {
             if (!Directory.Exists(targetDirectoryPath))
@@ -246,7 +264,6 @@ public class SymLinkLocations
         }
         else
         {
-            CuteErrorObject.SetActive(false);
             DisplayErrorText("LAST BACKUP NOT FOUND");
             throw new Exception("Last backup not found");
         }
@@ -275,66 +292,95 @@ public class SymLinkLocations
         }
         else
         {
-            CuteErrorObject.SetActive(false);
             DisplayErrorText("CREATE A BACKUP FIRST");
-            throw new Exception("No Backup Found, Cannot clear AppData");
+            throw new Exception("No backups found, cannot clear AppData");
         }
     }
     public void PixelModPackLink()
     {
-        Application.OpenURL("https://github.com/iPixelGalaxy/iPixelGalaxy-Beat-Saber-Modpack/releases/latest");
+        Application.OpenURL("https://github.com/iPixelGalaxy/iPixelGalaxy-Beat-Saber-Modpack");
     }
     public void PixelModPack()
     {
         InstallingTextObject.SetActive(true);
 
-        Delayfunc(0.03f, delegate
+        Delayfunc(0.3f, delegate
         {
             if (!Directory.Exists("Temp Files"))
                 Directory.CreateDirectory("Temp Files");
 
+            List<string> modpackversions = new List<string>();
+
+            JObject parsed;
+            
+            // Check Version
+            using (var client = new WebClient())
+            {
+                string json = client.DownloadString("https://raw.githubusercontent.com/iPixelGalaxy/iPixelGalaxy-Beat-Saber-Modpack/main/BSLegacyVersionCheck.json");
+                parsed = JObject.Parse(json);
+
+                foreach (JProperty version in parsed.Properties())
+                {
+                    modpackversions.Add(version.Name);
+                }
+            }
+            
+            string Version = File.ReadAllText($"{InstalledVersionToggle.BSBaseDir}\\BeatSaberVersion.txt");
+            int VersionIndex = modpackversions.IndexOf(Version);
+
+            if (VersionIndex == -1)
+            {
+                //Version is incompatible
+                DisplayErrorText("INCOMPATIBLE BEAT SABER VERSION");
+                DisplayInfoText($"Latest Compatible Version:\n{modpackversions[0]}");
+                if (Directory.Exists("Temp Files"))
+                    Directory.Delete("Temp Files", true);
+
+                if (File.Exists($"{InstalledVersionToggle.BSDirectory}\\ModpackInfo"))
+                    File.Delete($"{InstalledVersionToggle.BSDirectory}\\ModpackInfo");
+                
+                InstallingTextObject.SetActive(false);
+                throw new Exception("Incompatible Version");
+            }
+
+            string[] externalMods = parsed[Version].SelectToken("externalmods").ToObject<string[]>();
+            string modpackurl = parsed[Version]["modpackurl"].ToObject<string>();
+            string message = parsed[Version]["message"].ToObject<string>();
+                
+            // Display Message
+            if (message != "")
+            {
+                string messageBuffer = "Installed Modpack for Beat Saber " + Version + "\n" + message;
+                DisplayInfoText(messageBuffer);
+            }
+            else
+            {
+                string messageBuffer = "Installed Modpack for Beat Saber "  + Version;
+                DisplayInfoText(messageBuffer);
+            }
+            
             // Download Modpack
             using (var client = new WebClient())
-                client.DownloadFile("https://github.com/iPixelGalaxy/iPixelGalaxy-Beat-Saber-Modpack/releases/latest/download/BeatSaberModpack.zip", "BeatSaberModpack.zip");
+                client.DownloadFile(modpackurl, "BeatSaberModpack.zip");
             ZipFile.ExtractToDirectory("BeatSaberModpack.zip", "Temp Files");
             File.Delete("BeatSaberModpack.zip");
 
-            if (File.Exists("Temp Files\\ModpackInfo"))
-            {
-                string[] filedata = File.ReadAllLines("Temp Files\\ModpackInfo");
-                List<string> Compatible = new List<string>(filedata[0].Split(','));
-
-                string Version = File.ReadAllText($"{InstalledVersionToggle.BSBaseDir}\\BeatSaberVersion.txt");
-
-                //Log.Debug($"Selected version right now is {Version}");
-
-                if (Compatible.IndexOf(Version) == -1)
+                for (int i = 1; i < externalMods.Length; i++)
                 {
-                    //Version is incompatible
-                    DisplayErrorText("INCOMPATIBLE BEAT SABER VERSION");
-                    DisplayInfoText($"Compatible versions:\n{filedata[0]}");
-                    if (Directory.Exists("Temp Files"))
-                        Directory.Delete("Temp Files", true);
-
-                    InstallingTextObject.SetActive(false);
-                    throw new Exception("Incompatible Version");
-                }
-
-                for (int i = 1; i < filedata.Length; i++)
-                {
-                    int CutIndex = filedata[i].LastIndexOf('/') + 1;
-                    string FileName = filedata[i].Substring(CutIndex, filedata[i].Length - CutIndex);
+                    int CutIndex = externalMods[i].LastIndexOf('/') + 1;
+                    string FileName = externalMods[i].Substring(CutIndex, externalMods[i].Length - CutIndex);
+                    
                     if (FileName.Contains(".zip"))
                     {
                         using (var client = new WebClient())
-                            client.DownloadFile(filedata[i], FileName);
+                            client.DownloadFile(externalMods[i], FileName);
                         ZipFile.ExtractToDirectory(FileName, "Temp Files");
                         File.Delete(FileName);
                     }
                     else if (FileName.Contains(".dll"))
                     {
                         using (var client = new WebClient())
-                            client.DownloadFile(filedata[i], $"Temp Files\\Plugins\\{FileName}");
+                            client.DownloadFile(externalMods[i], $"Temp Files\\Plugins\\{FileName}");
                     }
                     else
                     {
@@ -342,10 +388,11 @@ public class SymLinkLocations
                         throw new Exception("Yep, Pixel is a dumbass");
                     }
                 }
-            }
+            
             MoveDirectory("Temp Files", InstalledVersionToggle.BSDirectory);
 
-            File.Delete($"{InstalledVersionToggle.BSDirectory}\\ModpackInfo");
+            if (File.Exists($"{InstalledVersionToggle.BSDirectory}\\ModpackInfo"))
+                File.Delete($"{InstalledVersionToggle.BSDirectory}\\ModpackInfo");
 
             if (Directory.Exists("Temp Files"))
                 Directory.Delete("Temp Files", true);
@@ -362,12 +409,17 @@ public class SymLinkLocations
         {
             DirectoryCopy(InstalledVersionToggle.BaseDirectory + "Resources\\BSIPA-4.2.2", InstalledVersionToggle.BSDirectory, true);
 
+            var IPA = FindObjectOfType<CheckIPA>();
+            IPA.IPAInstalled();
+
             ErrorTextObject.SetActive(false);
             DisplayFeedbackText("IPA 4.2.2 INSTALLED");
+            IPA3Button.SetActive(false);
+            IPA4Button.SetActive(false);
+            UninstallIPAButton.SetActive(true);
         }
         catch
         {
-            CuteErrorObject.SetActive(false);
             DisplayErrorText("IPA ALREADY INSTALLED");
             throw new Exception("An IPA version is already installed");
         }
@@ -377,7 +429,8 @@ public class SymLinkLocations
             Process.Start(new ProcessStartInfo
             {
                 WorkingDirectory = bspath,
-                FileName = bspath + "IPA.exe"
+                FileName = bspath + "IPA.exe",
+                Arguments = "-n"
             });
         }
     }
@@ -386,12 +439,12 @@ public class SymLinkLocations
         try
         {
             DirectoryCopy(InstalledVersionToggle.BaseDirectory + "Resources\\BSIPA-Legacy", InstalledVersionToggle.BSDirectory, true);
-            ErrorTextObject.SetActive(false);
             DisplayFeedbackText("LEGACY IPA INSTALLED");
+            var IPA = FindObjectOfType<CheckIPA>();
+            IPA.IPAInstalled();
         }
         catch
         {
-            CuteErrorObject.SetActive(false);
             DisplayErrorText("IPA ALREADY INSTALLED");
             throw new Exception("An IPA version is already installed");
         }
@@ -401,30 +454,68 @@ public class SymLinkLocations
             Process.Start(new ProcessStartInfo
             {
                 WorkingDirectory = bspath,
-                FileName = bspath + "IPA.exe"
-            });
+                FileName = "IPA.exe",
+                Arguments = "\"Beat Saber.exe\""
+            }); 
         }
     }
-    public void InstallMods()
+    public void UninstallIPA()
     {
         try
         {
-            if (!File.Exists("Resources\\BeatSaberModManager.exe"))
+            if (Directory.Exists(InstalledVersionToggle.BSDirectory))
             {
-                using (var client = new WebClient())
-                    client.DownloadFile("https://github.com/affederaffe/BeatSaberModManager/releases/latest/download/BeatSaberModManager-win-x64.zip", "BeatSaberModManager.zip");
+                string bspath = InstalledVersionToggle.BSDirectory;
+                string IPADir = $"{InstalledVersionToggle.BSDirectory}IPA";
+                string IPAexe = $"{InstalledVersionToggle.BSDirectory}IPA.exe";
+                string IPAconfig = $"{InstalledVersionToggle.BSDirectory}IPA.exe.config";
+                string IPAruntime = $"{InstalledVersionToggle.BSDirectory}IPA.runtimeconfig.json";
+                string MonoCecildll = $"{InstalledVersionToggle.BSDirectory}Mono.Cecil.dll";
 
-                ZipFile.ExtractToDirectory("BeatSaberModManager.zip", "Resources\\");
-                File.Delete("BeatSaberModManager.zip");
+                ProcessStartInfo i = new ProcessStartInfo
+                {
+                    WorkingDirectory = bspath,
+                    FileName = "IPA.exe",
+                    Arguments = "--revert --nowait"
+                };
+                Process p = Process.Start(i);
+                p.WaitForExit(5000);
+                try
+                {
+                    if (Directory.Exists(IPADir))
+                    {
+                        Directory.Delete(IPADir, true);
+                        File.Delete(IPAexe);
+                    }
+
+                    if (File.Exists(IPAconfig))
+                        File.Delete(IPAconfig);
+
+                    if (File.Exists(IPAruntime))
+                        File.Delete(IPAruntime);
+
+                    if (File.Exists(MonoCecildll))
+                        File.Delete(MonoCecildll);
+
+                    DisplayFeedbackText("IPA UNINSTALLED");
+
+                    var IPA = FindObjectOfType<CheckIPA>();
+                    IPA.IPANotInstalled();
+                }
+                catch
+                {
+                    DisplayErrorText("FAILED TO DELETE IPA FILES");
+                }
             }
-
-            Process.Start("Resources\\BeatSaberModManager.exe", $"--path {InstalledVersionToggle.BSDirectory}");
-        }
-        catch
+        } catch
         {
-            DisplayErrorText("COULD NOT DOWNLOAD BEATSABERMODMANAGER");
+            {
+                DisplayErrorText("IPA NOT INSTALLED");
+                throw new Exception("No BSIPA Installation has been found");
+            }
         }
     }
+    
     [DllImport("shell32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     public static extern bool IsUserAnAdmin();
@@ -471,36 +562,44 @@ public class SymLinkLocations
             }
             if (OtherToggle.isOn)
             {
-                if ($"{OtherField.text}".Contains("Plugins"))
-                {
-                    DisplayErrorText("CANNOT LINK PLUGINS");
-                    throw new Exception("Sharing this folder is Forbiddon");
-                }
-
-                if ($"{OtherField.text}".Contains("CustomLevels"))
+                if (OtherField.text.Contains("CustomLevels"))
                 {
                     DisplayErrorText("USE CUSTOMLEVELS TOGGLE");
                     throw new Exception("Use the CustomLevels Toggle to link CustomLevels");
                 }
-
-                if ($"{OtherField.text}".Contains("UserData"))
+                
+                if (OtherField.text.Contains("CustomWIPLevels"))
                 {
-                    try
+                    DisplayErrorText("USE CUSTOMWIPLEVELS TOGGLE");
+                    throw new Exception("Use the CustomWIPLevels Toggle to link CustomLevels");
+                }
+                
+                if (OtherField.text.Contains("Plugins"))
+                {
+                    DisplayErrorText("CANNOT LINK PLUGINS");
+                    throw new Exception("Sharing this folder is Forbidden");
+                }
+
+                if (OtherField.text.Contains("UserData"))
+                {
+                    string BSIPAJSON = $"Installed Versions\\Beat Saber {InstalledVersionToggle.BSVersion}\\UserData\\Beat Saber IPA.json";
+                    if (File.Exists(BSIPAJSON))
                     {
-                        string json = File.ReadAllText($"Installed Versions\\Beat Saber {InstalledVersionToggle.BSVersion}\\UserData\\Beat Saber IPA.json");
+                        string json = File.ReadAllText(BSIPAJSON);
                         dynamic jsonObj = JsonConvert.DeserializeObject(json);
                         jsonObj["YeetMods"] = "false";
                         string output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
                         File.WriteAllText($"Installed Versions\\Beat Saber {InstalledVersionToggle.BSVersion}\\UserData\\Beat Saber IPA.json", output);
+                        DisplayInfoText("The YeetMods variable in Beat Saber IPA.json\nhas been set to false to prevent mod removal");
                     }
-                    catch
-                    {
-                        DisplayInfoText("Beat Saber IPA.json was\nnot found, continuing link...");
-                    }
-                    
-
-                    DisplayInfoText("The YeetMods variable in Beat Saber IPA.json\nhas been set to false to prevent mod removal");
                 }
+
+                if (OtherField.text.Contains(""))
+                {
+                    DisplayErrorText("PLEASE INPUT A FOLDER");
+                    throw new Exception("Please input something in the custom folder field");
+                }
+
                 if (!locations.folders.Any(x => x == OtherField.text)) // maybe add .ToLower() if needed
                 {
                     locations.folders.Add(OtherField.text);
@@ -616,6 +715,20 @@ public class SymLinkLocations
             if (!Directory.Exists($"{d}\\{folder}")) Directory.CreateDirectory($"{d}\\{folder}");
             ProcessLink($"{d}\\{folder}", $"{folder}");
         }
+        
+        string BSIPAJSON = $"Installed Versions\\Beat Saber {InstalledVersionToggle.BSVersion}\\UserData\\Beat Saber IPA.json";
+        if (File.Exists(BSIPAJSON))
+        {
+            string json = File.ReadAllText(BSIPAJSON);
+            dynamic jsonObj = JsonConvert.DeserializeObject(json);
+            jsonObj["YeetMods"] = "false";
+            string output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
+            File.WriteAllText($"Installed Versions\\Beat Saber {InstalledVersionToggle.BSVersion}\\UserData\\Beat Saber IPA.json", output);
+            DisplayInfoText("The YeetMods variable in Beat Saber IPA.json\nhas been set to false to prevent mod removal");
+        }
+                    
+
+        DisplayInfoText("The YeetMods variable in Beat Saber IPA.json\nhas been set to false to prevent mod removal");
 
         DisplayFeedbackText("FOLDERS RELINKED");
     }

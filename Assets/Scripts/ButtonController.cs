@@ -8,7 +8,7 @@ public class ButtonController : MonoBehaviour
     public float speed = 1;
     public void set(int movement, int yearCount)
     {
-        float buttonWidth = 1.425f;
+        float buttonWidth = 1.43f;
         target =  buttonWidth * movement - (yearCount * buttonWidth / 2) + 0.7125f;
     }
 
