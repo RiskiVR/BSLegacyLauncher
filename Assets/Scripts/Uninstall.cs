@@ -8,6 +8,7 @@ using UnityEngine.UI;
 
 public class Uninstall : MonoBehaviour
 {
+    public AudioSource ErrorSound;
     public GameObject ErrorTextObject;
     public Text ErrorText;
     public Text InstalledVer;
@@ -17,6 +18,7 @@ public class Uninstall : MonoBehaviour
         ErrorText.text = text;
         ErrorTextObject.SetActive(false);
         ErrorTextObject.SetActive(true);
+        ErrorSound.Play();
     }
 
     public void UninstallTrigger()

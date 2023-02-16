@@ -18,6 +18,7 @@ public class InstalledVersionToggle : MonoBehaviour
     public static string BSVersion = "1.0.0";
     public static string BaseDirectory = "";
 
+
     public static bool BSInstalledAndSelected { get
         {
             return BSVersion != "";
@@ -27,8 +28,9 @@ public class InstalledVersionToggle : MonoBehaviour
     public GameObject SelectVersionsObj;
     public Animator SelectVersions;
     public Animator InstalledVersions;
+    public GameObject installedVersionsObj;
 
-    public void Awake()
+	public void Awake()
     {
         SetBaseDir();
     }
@@ -60,6 +62,7 @@ public class InstalledVersionToggle : MonoBehaviour
     public static List<string> GetInstalledVersions()
     {
         List<string> installedVersions = new List<string>();
+        if (!Directory.Exists(BSBaseDir)) return installedVersions;
         foreach(string s in Directory.GetDirectories(BSBaseDir))
         {
             installedVersions.Add(Path.GetFileName(s).Replace("Beat Saber ", ""));
@@ -70,10 +73,14 @@ public class InstalledVersionToggle : MonoBehaviour
         return installedVersions;
     }
 
-    public void UpdateList()
+	bool showInstalledVersions = true;
+
+	public void UpdateList()
     {
         Debug.Log("Updating list");
-        Toggle(Directory.GetDirectories(BSBaseDir).Length > 0);
+        showInstalledVersions = Directory.GetDirectories(BSBaseDir).Length > 0;
+
+		Toggle(Directory.GetDirectories(BSBaseDir).Length > 0);
 
         VersionButtonController.GetInstalledVersions();
 
@@ -95,7 +102,10 @@ public class InstalledVersionToggle : MonoBehaviour
         int i = 0;
         int ii = 0;
         installedVersions = value;
-        gameObject.SetActive(value);
+        
+        installedVersionsObj.SetActive(showInstalledVersions);
+
+		gameObject.SetActive(value);
         Debug.Log("show downloaded versions: " + value);
         VersionButtonController.PublicYears.SetActive(!value);
         VersionButtonController.PublicReleaseInfoButton.SetActive(false);

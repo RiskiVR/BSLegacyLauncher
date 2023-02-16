@@ -10,6 +10,7 @@ public class LaunchBS : MonoBehaviour
     public Button LaunchButton;
 
     [Header("Error Text Objects")]
+    public AudioSource ErrorSound;
     public GameObject ErrorTextObject;
     public Text ErrorText;
     public static LaunchBS instace;
@@ -24,6 +25,7 @@ public class LaunchBS : MonoBehaviour
         ErrorTextObject.SetActive(false);
         ErrorTextObject.SetActive(true);
         ErrorText.text = text;
+        ErrorSound.Play();
     }
 
     private void Delayfunc(float delay, Action action)
@@ -88,19 +90,15 @@ public class LaunchBS : MonoBehaviour
                 if (Directory.Exists(InstalledVersionToggle.BSDirectory))
                 {
                     if (!File.Exists(InstalledVersionToggle.BSDirectory + "Beat Saber.exe"))
-                        ErrorText.text = "BAD INSTALL! PLEASE REINSTALL BEAT SABER";
+                        DisplayErrorText("BEAT SABER.EXE NOT FOUND");
                 }
-                else ErrorText.text = "BEAT SABER NOT INSTALLED";
-                ErrorTextObject.SetActive(false);
-                ErrorTextObject.SetActive(true);
+                else DisplayErrorText("BEAT SABER NOT INSTALLED");
                 throw new Exception("Beat Saber Not Installed");
             }
         }
         else
         {
-            ErrorText.text = "STEAM NOT RUNNING";
-            ErrorTextObject.SetActive(false);
-            ErrorTextObject.SetActive(true);
+            DisplayErrorText("STEAM NOT RUNNING");
             throw new Exception("Steam Not Running");
         }
     }

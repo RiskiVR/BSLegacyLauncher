@@ -68,7 +68,7 @@ public class VersionButtonController : MonoBehaviour
 
         // Don't forget to add back
         
-        /*
+        
         try
         {
             // Update cache
@@ -78,7 +78,7 @@ public class VersionButtonController : MonoBehaviour
             d = c.DownloadString("https://raw.githubusercontent.com/RiskiVR/BSLegacyLauncher/master/Resources/Patreons.json");
             File.WriteAllText(InstalledVersionToggle.BaseDirectory + "Resources/Patreons.json", d);
         } catch { }
-        */
+        
         string versionList = File.ReadAllText(InstalledVersionToggle.BaseDirectory + "Resources/BSVersions.json");
         versions = JsonConvert.DeserializeObject<List<Version>>(versionList);
 

@@ -48,11 +48,12 @@ public class DepotDownloaderObject : MonoBehaviour
     public Button LocalGameFilesButton;
     public Button InstallIPAButton;
     public GameObject InvalidPasswordTips;
-    
-    [Header("Audio Sources")]
+
+    [Header("Audio Sources")] 
     public AudioSource DownloadSound;
     public AudioSource ErrorSound;
     public AudioSource StartSound;
+    public GameObject StartDownloadSound;
 
     [Header("Animators")]
     public RuntimeAnimatorController TextDismiss;
@@ -197,6 +198,7 @@ public class DepotDownloaderObject : MonoBehaviour
 
     private void SetDownloadingLayout()
     {
+        StartDownloadSound.SetActive(true);
         GameObject.Destroy(LoadingActiveInstance);
         SetLoginObjects(false);
         VersionText1.SetActive(false);
@@ -357,6 +359,7 @@ public class DepotDownloaderObject : MonoBehaviour
     {
         StartSound.Play();
         ErrorTextObject.SetActive(false);
+        StartDownloadSound.SetActive(false);
         Version selectedVersion = VersionButtonController.versions.First(x => x.BSVersion.Equals(VersionVar.instance.version));
         Log.Info($"You selected version {selectedVersion.BSVersion} : {selectedVersion.BSManifest}");
         DiscordController.BSVersion = $"{selectedVersion.BSVersion}";
