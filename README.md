@@ -116,8 +116,7 @@ Project Link: [https://github.com/RiskiVR/BSLegacyLauncher](https://github.com/R
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements
 
-* [RiskiVR](https://www.patreon.com/riskivr) - Lead Developer, Project Lead & Founder
+* [RiskiVR](https://www.riskivr.com) - Lead Developer, Project Lead & Founder
 * [ComputerElite](https://computerelite.github.io/) - Co-Developer
-* [MintLily](https://mintlily.lgbt/) - Development Help
 * [DDAkebono](https://potato.moe) - Development Help
 * [M.O.O.N](https://www.youtube.com/channel/UC6pqxF0s6FSu6oVm-70lzqQ) - Shader Help
