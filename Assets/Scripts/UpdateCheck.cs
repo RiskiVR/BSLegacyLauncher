@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Net;
 using System.Text;
 using System.Diagnostics;
@@ -23,22 +23,18 @@ public class UpdateCheck : MonoBehaviour
             UpdateButton.interactable = false;
 
         version = Application.version;
-        lazyTag = "\"tag_name\": \"v" + version + "\"";
+        lazyTag = $"\"tag_name\": \"v{version}\"";
         // Get latest tag
-        GetComponent<TextMesh>().text = "v" + version;
+        GetComponent<TextMesh>().text = $"v{version}";
         WebClient web = new WebClient();
         web.Headers["Content-Type"] = "application/json";
         web.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:87.0) Gecko/20100101 Firefox/87.0");
         web.Encoding = Encoding.UTF8;
         incomingData = web.DownloadString(GitHub);
 
-        if (incomingData.Contains(lazyTag))
-            UnityEngine.Debug.Log("Versions are matching");
-        else
-        {
-            UnityEngine.Debug.Log("GitHub version is different than internal version.");
-            UpdateCheckObject.SetActive(true);
-        }
+        bool VersionsMatch = incomingData.Contains(lazyTag);
+        UnityEngine.Debug.Log(VersionsMatch ? "Versions are matching" : "GitHub version is different than internal version.");
+        if (!VersionsMatch) UpdateCheckObject.SetActive(true);
     }
     private void DisplayErrorText(string text)
     {
