@@ -5,7 +5,7 @@ public class OpenURL : MonoBehaviour
 {
     public void OpenWebsite()
     {
-        Application.OpenURL("https://bslegacy.com");
+        Application.OpenURL("https://discord.com/invite/MrwMx5e");
     }
 
     public void OpenGithub()
