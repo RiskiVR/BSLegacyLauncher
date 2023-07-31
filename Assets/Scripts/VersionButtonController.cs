@@ -204,24 +204,24 @@ public class VersionButtonController : MonoBehaviour
                 GameObject button = Instantiate(VersionButtonPrefab, Versions.transform);
                 button.GetComponentInChildren<Text>().text = version;
                 button.GetComponent<RectTransform>().anchoredPosition = new Vector2(currentColumn * 90, currentRow * -30);
+				button.GetComponentInChildren<Button>().onClick.AddListener(() =>
+				{
+					if (InstalledVersionToggle.installedVersions) InstalledVersionToggle.SetBSVersion(version);
+					VersionText2.SetActive(true);
+					DownloadButton.SetActive(true);
+					DownloadButton.GetComponent<Button>().interactable = !InstalledVersionToggle.installedVersions;
+					Versions.GetComponent<VersionVar>().ListVersion(version);
+					ReleaseInfoButton.SetActive(true);
+					ReleaseInfoButton.GetComponent<Button>().interactable = false;
+					if (versions.FirstOrDefault(x => x.BSVersion == version) != null)
+					{
+						ReleaseInfoButton.GetComponent<Button>().interactable = true;
+					}
+
+					_ClickSound.GetComponent<AudioSource>().Play();
+				});
                 
-                button.GetComponentInChildren<Button>().onClick.AddListener(() =>
-                {
-                    if (InstalledVersionToggle.installedVersions) InstalledVersionToggle.SetBSVersion(version);
-                    VersionText2.SetActive(true);
-                    DownloadButton.SetActive(true);
-                    DownloadButton.GetComponent<Button>().interactable = !InstalledVersionToggle.installedVersions;
-                    Versions.GetComponent<VersionVar>().ListVersion(version);
-                    ReleaseInfoButton.SetActive(true);
-                    ReleaseInfoButton.GetComponent<Button>().interactable = false;
-                    if (versions.FirstOrDefault(x => x.BSVersion == version) != null)
-                    {
-                        ReleaseInfoButton.GetComponent<Button>().interactable = true;
-                    }
-                        
-                    _ClickSound.GetComponent<AudioSource>().Play();
-                });
-                if (installedVersions.Contains(version) && !InstalledVersionToggle.installedVersions)
+                if (installedVersions.Contains(version) && !InstalledVersionToggle.installedVersions || version.ToLower() == "none")
                 {
                     button.GetComponentInChildren<Button>().interactable = false;
                 }

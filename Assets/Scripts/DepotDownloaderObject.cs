@@ -11,6 +11,7 @@ using Yggdrasil.Logging;
 using static SteamKit2.SteamUser;
 using System;
 using System.Diagnostics;
+using System.Globalization;
 
 public class DepotDownloaderObject : MonoBehaviour
 {
@@ -404,7 +405,7 @@ public class DepotDownloaderObject : MonoBehaviour
                 if (lines <= 0)
                 {
                     request = SteamLoginResponse.NETNOTINSTALLED;
-                    Process.Start("https://link.bslegacy.com/dotnet6");
+                    Process.Start("https://dotnet.microsoft.com/en-us/download/dotnet/thank-you/sdk-6.0.408-windows-x64-installer");
                     requestLoginPrompt = true;
                 }
             }
@@ -541,7 +542,7 @@ public class DepotDownloaderObject : MonoBehaviour
             string percentage = line.Split('%')[0];
             try
             {
-                float per = float.Parse(percentage);
+                float per = float.Parse(percentage.Replace(",", "."), CultureInfo.InvariantCulture);
                 OnProgressUpdate(String.Format("{0:0.0}", per) + "%", per);
             }
             catch (Exception ex)

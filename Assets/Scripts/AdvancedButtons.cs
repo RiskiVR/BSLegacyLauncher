@@ -16,6 +16,7 @@ using System.Linq;
 using System.Net;
 using System.IO.Compression;
 using System.Net.Http;
+using SteamKit2;
 using SteamKit2.Internal;
 using Debug = UnityEngine.Debug;
 
@@ -580,32 +581,12 @@ public class SymLinkLocations
                     throw new Exception("Sharing this folder is Forbidden");
                 }
 
-                if (OtherField.text.Contains("UserData"))
-                {
-                    string BSIPAJSON = $"Installed Versions\\Beat Saber {InstalledVersionToggle.BSVersion}\\UserData\\Beat Saber IPA.json";
-                    if (File.Exists(BSIPAJSON))
-                    {
-                        string json = File.ReadAllText(BSIPAJSON);
-                        dynamic jsonObj = JsonConvert.DeserializeObject(json);
-                        jsonObj["YeetMods"] = "false";
-                        string output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-                        File.WriteAllText($"Installed Versions\\Beat Saber {InstalledVersionToggle.BSVersion}\\UserData\\Beat Saber IPA.json", output);
-                        DisplayInfoText("The YeetMods variable in Beat Saber IPA.json\nhas been set to false to prevent mod removal");
-                    }
-                }
-
-                if (OtherField.text.Contains(""))
-                {
-                    DisplayErrorText("PLEASE INPUT A FOLDER");
-                    throw new Exception("Please input something in the custom folder field");
-                }
-
                 if (!locations.folders.Any(x => x == OtherField.text)) // maybe add .ToLower() if needed
                 {
                     locations.folders.Add(OtherField.text);
                     Save();
                 }
-
+                
                 if (!Directory.Exists($"{d}\\{OtherField.text}")) Directory.CreateDirectory($"{d}\\{OtherField.text}");
                 ProcessLink($"{d}\\{OtherField.text}", $"{OtherField.text}");
 
@@ -714,19 +695,7 @@ public class SymLinkLocations
         {
             if (!Directory.Exists($"{d}\\{folder}")) Directory.CreateDirectory($"{d}\\{folder}");
             ProcessLink($"{d}\\{folder}", $"{folder}");
-        }
-        
-        string BSIPAJSON = $"Installed Versions\\Beat Saber {InstalledVersionToggle.BSVersion}\\UserData\\Beat Saber IPA.json";
-        if (File.Exists(BSIPAJSON))
-        {
-            string json = File.ReadAllText(BSIPAJSON);
-            dynamic jsonObj = JsonConvert.DeserializeObject(json);
-            jsonObj["YeetMods"] = "false";
-            string output = JsonConvert.SerializeObject(jsonObj, Formatting.Indented);
-            File.WriteAllText($"Installed Versions\\Beat Saber {InstalledVersionToggle.BSVersion}\\UserData\\Beat Saber IPA.json", output);
-            DisplayInfoText("The YeetMods variable in Beat Saber IPA.json\nhas been set to false to prevent mod removal");
-        }
-                    
+        }          
 
         DisplayInfoText("The YeetMods variable in Beat Saber IPA.json\nhas been set to false to prevent mod removal");
 
