@@ -94,7 +94,7 @@ Ever wanted or needed to have the ability to switch between any versions? Then t
 ## Supported Arguements
 
 `--LaunchBS` - Runs Beat Saber on Launch
-<br/>`--version <input>` - Sets the active Beat Saber version (Recommended to use with `--LaunchBS`)
+<br/>`--version <input>` - Sets the active Beat Saber version *(Recommended to use with `--LaunchBS`)*
 <br/>`--pixel` - ???
 
 
