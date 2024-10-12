@@ -628,5 +628,12 @@
       "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/4601078012425941968",
       "year": "2024",
       "row": 4
+   },
+   {
+      "BSVersion":"1.38.0",
+      "BSManifest":"3482902979520746178",
+      "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/4669760442595134838",
+      "year": "2024",
+      "row": 5
    }
 ]
