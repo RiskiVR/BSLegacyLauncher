@@ -544,5 +544,96 @@
       "ReleaseURL":"NULL",
       "year": "2023",
       "row": 7
+   },
+   {
+      "BSVersion":"1.34.4b",
+      "BSManifest":"4708673901095271103",
+      "ReleaseURL":"NULL",
+      "year": "2024",
+      "row": 1
+   },
+   {
+      "BSVersion":"1.34.4b",
+      "BSManifest":"6450652643352727696",
+      "ReleaseURL":"NULL",
+      "year": "2024",
+      "row": 1
+   },
+   {
+      "BSVersion":"1.34.5",
+      "BSManifest":"7413405154512822201",
+      "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/4036983137766828695",
+      "year": "2024",
+      "row": 1
+   },
+   {
+      "BSVersion":"1.34.6",
+      "BSManifest":"4398761375819224126",
+      "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/7595953477644376721",
+      "year": "2024",
+      "row": 1
+   },
+   {
+      "BSVersion":"1.35.0",
+      "BSManifest":"1490986193481243578",
+      "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/4142820264819707010",
+      "year": "2024",
+      "row": 2
+   },
+   {
+      "BSVersion":"1.36.0",
+      "BSManifest":"8533509040167838423",
+      "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/4205873192610459250",
+      "year": "2024",
+      "row": 3
+   },
+   {
+      "BSVersion":"1.36.2",
+      "BSManifest":"4832237377879752064",
+      "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/4181105931135110118",
+      "year": "2024",
+      "row": 3
+   },
+   {
+      "BSVersion":"1.37.0",
+      "BSManifest":"7270690075584855288",
+      "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/4161968170153497461",
+      "year": "2024",
+      "row": 4
+   },
+   {
+      "BSVersion":"1.37.1",
+      "BSManifest":"9129356330007601179",
+      "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/4253168598913260422",
+      "year": "2024",
+      "row": 4
+   },
+   {
+      "BSVersion":"1.37.2",
+      "BSManifest":"6848299977215652352",
+      "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/4349999161850643744",
+      "year": "2024",
+      "row": 4
+   },
+   {
+      "BSVersion":"1.37.3",
+      "BSManifest":"5834150512217183366",
+      "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/6808965920900622902",
+      "year": "2024",
+      "row": 4
+   },
+   {
+      "BSVersion":"1.37.4",
+      "BSManifest":"3122533396458693889",
+      "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/4601078012425941968",
+      "year": "2024",
+      "row": 4
+   },
+   {
+      "BSVersion":"1.38.0",
+      "BSManifest":"3482902979520746178",
+      "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/4669760442595134838",
+      "year": "2024",
+      "row": 5
    }
 ]
