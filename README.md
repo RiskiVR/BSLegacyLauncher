@@ -21,6 +21,10 @@
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
 
+> [!CAUTION]
+> BSLegacyLauncher has not been maintained for a year, and is going EOL at the end of the year.
+> Source code will be fully uploaded in December.
+
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
