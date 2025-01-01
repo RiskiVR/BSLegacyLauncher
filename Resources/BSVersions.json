@@ -635,5 +635,26 @@
       "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/4669760442595134838",
       "year": "2024",
       "row": 5
+   },
+   {
+      "BSVersion":"1.39.0",
+      "BSManifest":"5365094543246905054",
+      "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/4451339035198095638",
+      "year": "2024",
+      "row": 6
+    },
+   {
+      "BSVersion":"1.39.1",
+      "BSManifest":"2179614296547473280",
+      "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/4451340304252928024",
+      "year": "2024",
+      "row": 6
+    },
+   {
+      "BSVersion":"1.40.0",
+      "BSManifest":"8455036253884215709",
+      "ReleaseURL":"https://steamcommunity.com/games/620980/announcements/detail/507314379973199787",
+      "year": "2024",
+      "row": 7
    }
 ]
