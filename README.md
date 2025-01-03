@@ -21,6 +21,11 @@
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
 
+> [!WARNING]  
+> BSLegacyLauncher has reached it's EOL on January 1, 2025.
+> Source has been made public for anyone to look through and/or further contribute the project if they wish to.
+> This project will remain community driven as I will actively accept pull requests.
+
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
