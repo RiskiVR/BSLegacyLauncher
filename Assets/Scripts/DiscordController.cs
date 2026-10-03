@@ -20,7 +20,6 @@ public class DiscordController : MonoBehaviour
 
     DiscordRpc.EventHandlers handlers;
 
-    public string BSVersion;
     public string Installed;
     public string DownloadProgress;
 
@@ -40,43 +39,32 @@ public class DiscordController : MonoBehaviour
 
     public void ErrorCallback(int errorCode, string message)
     {
-        Debug.Log(string.Format("Discord: error {0}: {1}", errorCode, message));
+        Debug.LogError(string.Format("Discord: error {0}: {1}", errorCode, message));
     }
-
-
 
     public void SelectVersion()
     {
         presence.details = "Selecting a version";
-        presence.state = $"Beat Saber {BSVersion}";
+        presence.state = $"Beat Saber 0.11.2";
         DiscordRpc.UpdatePresence(presence);
     }
 
     public void DownloadUpdate()
     {
         presence.details = $"{DownloadProgress}"; 
-        presence.state = $"Beat Saber {BSVersion}";
+        presence.state = $"Beat Saber 0.11.2";
         DiscordRpc.UpdatePresence(presence);
     }
 
     public void VersionStart()
     {
-        presence.details = $"Currently Selected: {InstalledVersionToggle.BSVersion}";
+        presence.details = $"Main Menu";
         presence.state = "";
-        presence.largeImageKey = "block";
         DiscordRpc.UpdatePresence(presence);
-    }
-
-    public void Uninstall()
-    {
-        Installed = "No version installed";
-        VersionStart();
     }
 
     void Start()
     {
-        presence.largeImageKey = "block";
-      //  presence.startTimestamp = 197011000; this shit doesn't work
         DiscordRpc.UpdatePresence(presence);
     }
     void Update()

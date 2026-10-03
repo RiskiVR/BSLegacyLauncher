@@ -1,54 +1,40 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using UnityEngine;
+using System.Linq;
+using System.Threading;
 using UnityEngine.UI;
+using Debug = UnityEngine.Debug;
+
 public class LaunchBS : MonoBehaviour
 {
-    public Button LaunchButton;
-
-    [Header("Error Text Objects")]
-    public AudioSource ErrorSound;
-    public GameObject ErrorTextObject;
-    public Text ErrorText;
-    public static LaunchBS instace;
+    public Animation manageButton;
+    private Animation launchButton;
+    private static bool launchedExternally = false;
     void Awake()
     {
-        instace = GetComponent<LaunchBS>();
+        if (Environment.GetCommandLineArgs().Contains("--launchBS")) // ignores case
+        {
+            launchedExternally = true;
+            LaunchBeatSaber();
+            Application.Quit();
+        }
+        GetComponent<Button>().onClick.AddListener(LaunchBeatSaber);
+        launchButton = GetComponent<Animation>();
     }
 
-    private void DisplayErrorText(string text)
+    void LaunchBeatSaber()
     {
-        // Set to false to restart popup animation DON'T CHANGE
-        ErrorTextObject.SetActive(false);
-        ErrorTextObject.SetActive(true);
-        ErrorText.text = text;
-        ErrorSound.Play();
-    }
-
-    private void Delayfunc(float delay, Action action)
-    {
-        StartCoroutine(Delay(delay, action));
-    }
-
-    private static IEnumerator Delay(float delay, Action action)
-    {
-        yield return new WaitForSeconds(delay);
-        action.Invoke();
-    }
-
-    public void LaunchBeatSaber()
-    {
-        var process = new Process()
+        Process process = new Process
         {
             StartInfo = new ProcessStartInfo
             {
-                FileName = InstalledVersionToggle.BSDirectory + "Beat Saber.exe",
-                Arguments = "--no-yeet " + (LaunchOptions.vars.oculus ? "-vrmode oculus " : "") + (LaunchOptions.vars.verbose ? "--verbose " : "") + (LaunchOptions.vars.fpfc ? "fpfc " : ""),
+                FileName = Path.Combine("Beat Saber", "Beat Saber.exe"),
+                Arguments = "--no-yeet " + (launchedExternally ? "" : (LaunchOptions.oculus ? "-vrmode oculus " : "") + 
+                                                                      (LaunchOptions.verbose ? "--verbose " : "")),
                 UseShellExecute = false,
-                WorkingDirectory = InstalledVersionToggle.BSDirectory,
+                WorkingDirectory = "Beat Saber",
             }
         };
 
@@ -58,50 +44,29 @@ public class LaunchBS : MonoBehaviour
             {
                 process.StartInfo.Environment["SteamAppId"] = "620980";
                 process.Start();
-
-                if (LaunchOptions.vars.fpfc)
-                {
-                    try
-                    {
-                        File.Move("C:\\Program Files (x86)\\Steam\\steamapps\\common\\SteamVR", "C:\\Program Files (x86)\\Steam\\steamapps\\common\\SteamVR.bak");
-                        Delayfunc(3, delegate { File.Move("C:\\Program Files (x86)\\Steam\\steamapps\\common\\SteamVR.bak", "C:\\Program Files (x86)\\Steam\\steamapps\\common\\SteamVR"); });
-                    }
-                    catch
-                    {
-                        DisplayErrorText("FAILED TO STOP STEAMVR");
-                    }
-                }
-
-                if (LaunchOptions.vars.verbose)
-                {
-                    throw new Exception();
-                }
             }
-            catch (Exception E)
+            catch (Exception e)
             {
-                UnityEngine.Debug.LogError(E.ToString());
-                if (LaunchOptions.vars.verbose)
+                Debug.LogError(e.ToString());
+                if (Directory.Exists("Beat Saber"))
                 {
-                    LaunchButton.interactable = false;
-                    Delayfunc(5, delegate { LaunchButton.interactable = true; });
-                    throw new Exception("Opening in Debug mode (Launcher remaining open)");
+                    if (!File.Exists(Path.Combine("Beat Saber", "Beat Saber.exe"))) 
+                        ErrorText.Display("BEAT SABER EXECUTABLE NOT FOUND");
                 }
-
-                if (Directory.Exists(InstalledVersionToggle.BSDirectory))
-                {
-                    if (!File.Exists(InstalledVersionToggle.BSDirectory + "Beat Saber.exe"))
-                        DisplayErrorText("BEAT SABER.EXE NOT FOUND");
-                }
-                else DisplayErrorText("BEAT SABER NOT INSTALLED");
-                throw new Exception("Beat Saber Not Installed");
+                else ErrorText.Display("BEAT SABER NOT INSTALLED");
+                return;
             }
-        }
-        else
-        {
-            DisplayErrorText("STEAM NOT RUNNING");
-            throw new Exception("Steam Not Running");
-        }
-    }
-        
-}
 
+            manageButton.Play();
+            launchButton.Play();
+            return;
+        }
+        ErrorText.Display("STEAM NOT RUNNING");
+        Debug.LogError("Steam Not Running");
+    }
+
+    public void ExitTrigger()
+    {
+        Application.Quit();
+    }
+}

@@ -25,7 +25,7 @@ public class LivConnector
     {
         ClearAllLivEntries(BSLLIdPrefix);
         List<LivEntry> entries = new List<LivEntry>();
-        string exeLoc = InstalledVersionToggle.BaseDirectory + "Beat Saber Legacy Launcher.exe";
+        string exeLoc = "Beat Saber Legacy Launcher.exe";
         foreach (string version in versions)
         {
             if (version == null) continue;
@@ -34,7 +34,7 @@ public class LivConnector
             {
                 Id = BSLLIdPrefix + version.Replace(".", "-"),
                 Name = "Beat Saber v" + version,
-                InstallPath = InstalledVersionToggle.GetBSDirectory(version),
+                InstallPath = "Beat Saber",
                 Executable = exeLoc,
                 Arguments = "--version \"" + version + "\""
             });

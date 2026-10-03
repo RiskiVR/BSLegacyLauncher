@@ -1,12 +1,16 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+using DG.Tweening;
+using TMPro;
 using UnityEngine;
 
-public class Version
+public class Version : MonoBehaviour
 {
-    public string BSVersion;
-    public string BSManifest;
-    public string ReleaseURL;
-    public string year;
-    public int row;
+    void Start()
+    {
+        TextMeshProUGUI text = GetComponent<TextMeshProUGUI>();
+        text.text = $"v{Application.version}";
+        text.DOFade(0, 0);
+        text.transform.DOLocalMoveX(-650, 0);
+        text.DOFade(1, 1).SetDelay(0.1f);
+        text.transform.DOLocalMoveX(-629, 0.5f).SetEase(Ease.OutExpo).SetDelay(0.1f);
+    }
 }

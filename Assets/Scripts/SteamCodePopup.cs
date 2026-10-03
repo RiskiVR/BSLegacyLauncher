@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,7 +7,7 @@ namespace Assets.Scripts
 {
     class SteamCodePopup : MonoBehaviour
     {
-        public TextMesh Description;
+        public TextMeshProUGUI Description;
         public InputField codeField;
         public Button EnterButton;
 
@@ -23,6 +20,7 @@ namespace Assets.Scripts
             {
                 if (Input.GetKey(KeyCode.Return)) EnterPressed();
             });
+            EnterButton.onClick.AddListener(EnterPressed);
         }
 
         public void EnterPressed()
