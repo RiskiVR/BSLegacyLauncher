@@ -12,11 +12,11 @@
   <h3 align="center">Beat Saber Legacy Launcher</h3>
 
   <p align="center">
-    Simple and fancy launcher designed to download and launch Beat Saber 0.11.2 easily and quickly.
+    Simple and fancy launcher designed to download, launch, and manage Beat Saber 0.11.2 easily and quickly.
     <br />
       <p align="center">
       <a href="https://github.com/RiskiVR/BSLegacyLauncher/releases/latest/download/BSLegacyLauncher.zip">
-      <img src="https://github.com/RiskiVR/BSLegacyLauncher/blob/media/readme/BSLegacyDownload.png" alt="Logo" width="300" height="60">
+      <img src="https://github.com/RiskiVR/BSLegacyLauncher/blob/media/readme/Download.png" alt="Download">
     <br />
     <a href="https://discord.gg/Tr8xfGB6gz">Join our Discord</a>
     ·
@@ -26,7 +26,8 @@
 
 ## About The Project
 BSLegacyLauncher is a program designed to fetch Beat Saber 0.11.2 from Steam's depots, and launch it within the same program!
-<br/>Your current Steam install will remain untouched!
+<br/>The program also includes a built in manager to help manage your install of Beat Saber 0.11.2!
+<br/>Don't worry, your current Steam or other installs will remain unaffected!
 
 ### Built With
 
@@ -40,7 +41,7 @@ BSLegacyLauncher is a program designed to fetch Beat Saber 0.11.2 from Steam's d
  - Click "Download 0.11.2" to start downloading Beat Saber 0.11.2 after logging into Steam.
  - When installed, press "Launch" to launch the game.
  - *To launch your BSLegacyLauncher install via Steam, add a Steam shortcut to `BSLegacyLauncher.exe`
- <br> then add `--LaunchBS` to Launch Options*
+ <br> then add `--launch` to Launch Options*
 
 ## Having problems?
 
@@ -51,6 +52,7 @@ See the [open issues](https://github.com/RiskiVR/BSLegacyLauncher/issues) for a 
 
 * For Support, [Join our Discord!](https://discord.gg/Tr8xfGB6gz)
 * Project Link: [https://github.com/RiskiVR/BSLegacyLauncher](https://github.com/RiskiVR/BSLegacyLauncher)
+* Main Website: [https://bslegacy.com](https://bslegacy.com)
 
 ## Acknowledgements
 
