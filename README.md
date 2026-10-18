@@ -40,6 +40,7 @@ BSLegacyLauncher is a program designed to fetch Beat Saber 0.11.2 from Steam's d
  - Once that's done, extract it and run "BSLegacyLauncher.exe" in the folder.
  - Click "Download 0.11.2" to start downloading Beat Saber 0.11.2 after logging into Steam.
  - When installed, press "Launch" to launch the game.
+ - Use "Manage Install" to download & install mods.
  - *To launch your BSLegacyLauncher install via Steam, add a Steam shortcut to `BSLegacyLauncher.exe`
  <br> then add `--launch` to Launch Options*
 
@@ -57,7 +58,4 @@ See the [open issues](https://github.com/RiskiVR/BSLegacyLauncher/issues) for a 
 ## Acknowledgements
 
 * [RiskiVR](https://riskivr.com) - Lead Developer, Project Lead & Founder
-* [Kaitlyn](https://www.patreon.com/cw/whatdahopper) - New 0.11.2 Plugins: 
-  * LegacyCore
-  * BeatSaverDownloader
-  * ChromaLite
+* [Kaitlyn](https://www.patreon.com/cw/whatdahopper) - New 0.11.2 Plugin Base
