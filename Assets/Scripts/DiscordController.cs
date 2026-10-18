@@ -42,13 +42,6 @@ public class DiscordController : MonoBehaviour
         Debug.LogError(string.Format("Discord: error {0}: {1}", errorCode, message));
     }
 
-    public void SelectVersion()
-    {
-        presence.details = "Selecting a version";
-        presence.state = $"Beat Saber 0.11.2";
-        DiscordRpc.UpdatePresence(presence);
-    }
-
     public void DownloadUpdate()
     {
         presence.details = $"{DownloadProgress}"; 

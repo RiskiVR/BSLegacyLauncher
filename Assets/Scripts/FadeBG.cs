@@ -39,7 +39,7 @@ public class FadeBG : MonoBehaviour
         incoming.color = new Color(1f, 1f, 1f, 0f);
         incoming.transform.localScale = Vector3.one * scale.x;
 
-        incoming.DOFade(1f, crossfadeDuration);
+        incoming.DOFade(1f, crossfadeDuration).SetEase(Ease.InOutCubic);
         incoming.transform.DOScale(scale.y, timeBetweenSlides).SetEase(Ease.Linear);
 
         outgoing.DOFade(0f, crossfadeDuration);

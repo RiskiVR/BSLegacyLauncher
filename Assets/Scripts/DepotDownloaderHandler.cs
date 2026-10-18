@@ -84,8 +84,7 @@ public class DepotDownloaderHandler : MonoBehaviour
 
         if (requestSteamGuardPopUp)
         {
-            //CreateSteamCodePopup("Approve your login from Steam Guard\nor enter 2FA code");
-            HeaderText.Display("Use the Steam Mobile App to confirm your sign in...");
+            CreateSteamCodePopup("Approve your login from Steam Guard\nor enter code");
             requestSteamGuardPopUp = false;
         }
 
@@ -265,7 +264,7 @@ public class DepotDownloaderHandler : MonoBehaviour
         BackButton.interactable = state;
         StartButtonObject.gameObject.SetActive(state);
         InputFields.SetActive(state);
-        //SteamguardPopup.SetActive(false);
+        SteamguardPopup.SetActive(false);
         if (isDownloading) LoadingPopup.SetActive(false);
         else LoadingPopup.SetActive(!state);
     }

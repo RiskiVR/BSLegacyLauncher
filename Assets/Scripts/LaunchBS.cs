@@ -2,8 +2,6 @@
 using System.Diagnostics;
 using System.IO;
 using UnityEngine;
-using System.Linq;
-using System.Threading;
 using UnityEngine.UI;
 using Debug = UnityEngine.Debug;
 
@@ -11,15 +9,8 @@ public class LaunchBS : MonoBehaviour
 {
     public Animation manageButton;
     private Animation launchButton;
-    private static bool launchedExternally = false;
     void Awake()
     {
-        if (Environment.GetCommandLineArgs().Contains("--launchBS")) // ignores case
-        {
-            launchedExternally = true;
-            LaunchBeatSaber();
-            Application.Quit();
-        }
         GetComponent<Button>().onClick.AddListener(LaunchBeatSaber);
         launchButton = GetComponent<Animation>();
     }
@@ -31,8 +22,8 @@ public class LaunchBS : MonoBehaviour
             StartInfo = new ProcessStartInfo
             {
                 FileName = Path.Combine("Beat Saber", "Beat Saber.exe"),
-                Arguments = "--no-yeet " + (launchedExternally ? "" : (LaunchOptions.oculus ? "-vrmode oculus " : "") + 
-                                                                      (LaunchOptions.verbose ? "--verbose " : "")),
+                Arguments = "--no-yeet " + (LaunchOptions.oculus ? "-vrmode oculus " : "")
+                                         + (LaunchOptions.verbose ? "--verbose " : ""),
                 UseShellExecute = false,
                 WorkingDirectory = "Beat Saber",
             }

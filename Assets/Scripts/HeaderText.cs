@@ -1,4 +1,5 @@
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,12 +7,12 @@ public class HeaderText : MonoBehaviour
 {
     private static HeaderText i;
     private CanvasGroup cg;
-    private Text text;
+    private TextMeshProUGUI text;
     public Image bsl;
     private void Awake()
     {
         i = this;
-        text = GetComponent<Text>();
+        text = GetComponent<TextMeshProUGUI>();
         cg = GetComponent<CanvasGroup>();
         bsl.DOFade(0, 0);
         bsl.transform.DOScale(0.3f, 0);
@@ -24,6 +25,12 @@ public class HeaderText : MonoBehaviour
         i.TextAnim(text);
     }
 
+    public static void Hide()
+    {
+        i.BSLLogoScale(false);
+        i.TextAnim("");
+    }
+
     void BSLLogoScale(bool a)
     {
         if (a)
@@ -33,7 +40,7 @@ public class HeaderText : MonoBehaviour
         }
         else
         {
-            bsl.DOFade(0, 0.25f);
+            bsl.DOFade(0, 0.3f);
             bsl.transform.DOScale(0.3f, 0.3f).SetEase(Ease.InExpo);
         }
     }

@@ -1,44 +1,30 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
-using UnityEngine;
-using UnityEngine.UI;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
-public class IPAHandler : MonoBehaviour
+public class IPAHandler
 {
-    static IPAHandler i;
-    public Button InstallIPAButton;
-    public Button UninstallIPAButton;
-    void Awake()
-    {
-        i = this;
-        InstallIPAButton.onClick.AddListener(InstallIPA);
-        UninstallIPAButton.onClick.AddListener(UninstallIPA);
-    }
-    void OnEnable()
-    {
-        if (InstallHandler.Installed)
-        {
-            CheckIPA();
-        }
-        else
-        {
-            UninstallIPAButton.gameObject.SetActive(false);
-        }
-    }
-    void SetButtons(bool ipa)
-    {
-        UninstallIPAButton.gameObject.SetActive(ipa);
-        InstallIPAButton.gameObject.SetActive(!ipa);
-    }
-    void CheckIPA()
+    public static string Version;
+    public static string MainPath = Path.Combine("Beat Saber", "IPA.exe");
+    public static bool Installed()
     {
         string IPADir = Path.Combine("Beat Saber", "IPA");
         string IPAexe = Path.Combine("Beat Saber", "IPA.exe");
-        i.SetButtons(Directory.Exists(IPADir) && File.Exists(IPAexe));
+        return Directory.Exists(IPADir) && File.Exists(IPAexe);
     }
-    void InstallIPA()
+    public static async Task InstallIPA()
     {
+        if (Installed() && GetIPAVersion() == Version)
+        {
+            ModListHandler.Downloading = false;
+            return;
+        }
+        if (Installed() && GetIPAVersion() != Version) await UninstallIPA();
+
+        DirectoryUtils.Copy(Path.Combine("Resources", "BSIPA-Legacy"), "Beat Saber", true);
+
         Process process = new Process();
         process.StartInfo = new ProcessStartInfo
         {
@@ -46,21 +32,12 @@ public class IPAHandler : MonoBehaviour
             FileName = "IPA.exe",
             Arguments = "\"Beat Saber.exe\""
         };
-        try
-        {
-            DirectoryUtils.Copy(Path.Combine("Resources", "BSIPA-Legacy"), "Beat Saber", true);
-            CheckIPA();
-        }
-        catch
-        {
-            ErrorText.Display("IPA ALREADY INSTALLED");
-            throw new Exception("IPA Already Installed");
-        }
 
         process.Start();
-        ErrorText.Display("LEGACY IPA INSTALLED", ErrorText.MessageType.INFO);
+        await WaitForExitAsync(process);
+        ModListHandler.Downloading = false;
     }
-    void UninstallIPA()
+    static async Task UninstallIPA()
     {
         Process process = new Process();
         process.StartInfo = new ProcessStartInfo
@@ -78,7 +55,7 @@ public class IPAHandler : MonoBehaviour
                 string MonoCecildll = Path.Combine("Beat Saber", "Mono.Cecil.dll");
 
                 process.Start();
-                process.WaitForExit(5000);
+                await WaitForExitAsync(process);
                 try
                 {
                     if (Directory.Exists(IPADir))
@@ -89,9 +66,6 @@ public class IPAHandler : MonoBehaviour
 
                     if (File.Exists(MonoCecildll))
                         File.Delete(MonoCecildll);
-
-                    ErrorText.Display("IPA UNINSTALLED", ErrorText.MessageType.INFO);
-                    CheckIPA();
                 }
                 catch
                 {
@@ -103,5 +77,23 @@ public class IPAHandler : MonoBehaviour
         {
             ErrorText.Display("IPA NOT INSTALLED");
         }
+    }
+
+    public static string GetIPAVersion()
+    {
+        if (!File.Exists(MainPath)) return null;
+        return Regex.Replace(FileVersionInfo.GetVersionInfo(MainPath).FileVersion, "(\\d+\\.\\d+\\.\\d+)\\.\\d+", "$1");
+    }
+
+    public static Task WaitForExitAsync(Process process, CancellationToken cancellationToken = default)
+    {
+        if (process.HasExited) return Task.CompletedTask;
+
+        var tcs = new TaskCompletionSource<object>();
+        process.EnableRaisingEvents = true;
+        process.Exited += (sender, args) => tcs.TrySetResult(null);
+        if (cancellationToken != default) cancellationToken.Register(() => tcs.SetCanceled());
+
+        return process.HasExited ? Task.CompletedTask : tcs.Task;
     }
 }

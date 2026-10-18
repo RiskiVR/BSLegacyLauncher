@@ -3,15 +3,20 @@ using UnityEngine;
 
 public class FocusMute : MonoBehaviour
 {
-    AudioSource _audioSource;
-    void Awake() => _audioSource = GetComponent<AudioSource>();
+    AudioSource audioSource;
     void Start()
     {
-        _audioSource.volume = 0;
-        _audioSource.DOFade(0.3f, 2);
+        audioSource = GetComponent<AudioSource>();
+        audioSource.volume = 0;
+        audioSource.DOFade(0.3f, 3);
     }
     void Update()
     {
-        _audioSource.mute = !Application.isFocused;
+        audioSource.mute = !Application.isFocused;
+    }
+
+    public void FadeOut()
+    {
+        audioSource.DOFade(0, 3);
     }
 }
