@@ -8660,10 +8660,10 @@ MonoBehaviour:
   DiscordController: {fileID: 1090552527}
   Username: {fileID: 911891607}
   Password: {fileID: 346202221}
-  BackButton: {fileID: 0}
+  BackButton: {fileID: 701396841}
   ExitButton: {fileID: 1838233638}
   InputFields: {fileID: 1783755864}
-  StartButtonObject: {fileID: 0}
+  StartButtonObject: {fileID: 312489060}
   DownloadDetailText: {fileID: 1770060539}
   ProgressBar: {fileID: 296194327}
   InnerProgressBar: {fileID: 1283378936}
