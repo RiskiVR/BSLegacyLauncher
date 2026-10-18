@@ -1,4 +1,4 @@
-> [!WARNING]  
+> [!NOTE]  
 > The old BSLegacyLauncher has reached it's EOL on January 1, 2025.
 > The new Beat Saber Legacy and BSLegacyLauncher has moved forward with it's original vision to primarily support & focus on Beat Saber 0.11.2
 
